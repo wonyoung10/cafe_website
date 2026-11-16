@@ -5,6 +5,7 @@ import ErrorBoundary from '@/components/common/ErrorBoundary';
 import SmartImage from '@/components/common/SmartImage';
 import { isWebGLAvailable } from '@/utils/webgl';
 import CafeScene from './scene/CafeScene';
+import { getTimeOfDay } from './scene/daylight';
 import { DEFAULT_VIEW } from './scene/layout';
 import { useMedia, useSceneVisible } from './useSceneEnvironment';
 
@@ -36,16 +37,18 @@ export default function StorePreview({ className }: StorePreviewProps) {
   const wrapper = useRef<HTMLDivElement>(null);
   const visible = useSceneVisible(wrapper);
   const reduceMotion = useMedia('(prefers-reduced-motion: reduce)');
+  // 홈 미리보기는 지금 이 시각의 빛으로 보여 준다
+  const [timeOfDay] = useState(() => getTimeOfDay());
   useEffect(() => {
     const element = wrapper.current;
     const onLost = (event: Event) => { event.preventDefault(); setLost(true); };
     element?.addEventListener('webglcontextlost', onLost, true);
     return () => element?.removeEventListener('webglcontextlost', onLost, true);
   }, []);
-  return <div ref={wrapper} aria-label="하루의 잎 가상 매장 미리보기" className={`h-full w-full overflow-hidden bg-cream ${className ?? ''}`}>
+  return <div ref={wrapper} aria-label="하루의 잎 가상 매장 미리보기" data-time-of-day={timeOfDay} className={`h-full w-full overflow-hidden bg-cream ${className ?? ''}`}>
     {!supported || lost ? <PreviewPlaceholder /> : <ErrorBoundary fallback={<PreviewPlaceholder />}>
       <Canvas dpr={[1, 1.25]} frameloop={visible ? 'demand' : 'never'} camera={{ position: DEFAULT_VIEW.position, fov: 65, near: 0.08, far: 45 }} gl={{ antialias: true, toneMapping: ACESFilmicToneMapping, outputColorSpace: SRGBColorSpace }} style={{ pointerEvents: 'none' }} aria-hidden>
-        <Suspense fallback={null}><CafeScene preview /><PreviewCamera animate={visible && !reduceMotion} /></Suspense>
+        <Suspense fallback={null}><CafeScene preview timeOfDay={timeOfDay} /><PreviewCamera animate={visible && !reduceMotion} /></Suspense>
       </Canvas>
     </ErrorBoundary>}
   </div>;

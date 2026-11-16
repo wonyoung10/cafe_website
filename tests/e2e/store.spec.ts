@@ -145,3 +145,42 @@ test('WebGL이 없으면 대체 설명을 표시한다', async ({ page }) => {
   await expect(page.getByRole('article')).toHaveCount(6);
   await expect(page.getByRole('img', { name: '햇살과 식물이 머무는 하루의 잎 가상 매장' })).toBeVisible();
 });
+
+async function daylight(page: Page) {
+  return page.evaluate(() => {
+    const debug = window.__CAFE_3D_DAYLIGHT__;
+    if (!debug) throw new Error('daylight debug hook is missing');
+    return { timeOfDay: debug.timeOfDay, settled: debug.settled, ...debug.getLevels() };
+  });
+}
+
+test('하루의 빛: 시간대를 바꾸면 조명이 부드럽게 바뀐다', async ({ page }) => {
+  await openStore(page);
+  const group = page.getByRole('group', { name: '하루의 빛', exact: true });
+  const viewer = page.locator('[data-time-of-day]').first();
+
+  await group.getByRole('button', { name: '오후', exact: true }).click();
+  await expect(viewer).toHaveAttribute('data-time-of-day', 'afternoon');
+  await expect.poll(async () => (await daylight(page)).settled, { timeout: 15_000 }).toBe(true);
+  const afternoon = await daylight(page);
+
+  await group.getByRole('button', { name: '저녁', exact: true }).click();
+  await expect(group.getByRole('button', { name: '저녁', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(group.getByRole('button', { name: '오후', exact: true })).toHaveAttribute('aria-pressed', 'false');
+  await expect(viewer).toHaveAttribute('data-time-of-day', 'evening');
+  await expect(page.getByText(/저녁, 창밖이 저물고/)).toBeVisible();
+  // 선택 직후 디버그 상태가 새 시간대를 가리키고, 이후 보간이 끝나면 settled가 된다
+  const midway = await daylight(page);
+  expect(midway.timeOfDay).toBe('evening');
+  await expect.poll(async () => (await daylight(page)).settled, { timeout: 15_000 }).toBe(true);
+  const evening = await daylight(page);
+  expect(evening.sun).toBeLessThan(afternoon.sun * 0.2);
+  expect(evening.pendant).toBeGreaterThan(afternoon.pendant * 3);
+
+  await group.getByRole('button', { name: '아침', exact: true }).click();
+  await expect.poll(async () => (await daylight(page)).settled, { timeout: 15_000 }).toBe(true);
+  const morning = await daylight(page);
+  expect(morning.timeOfDay).toBe('morning');
+  expect(morning.sun).toBeGreaterThan(evening.sun * 5);
+  expect(morning.pendant).toBeLessThan(evening.pendant);
+});

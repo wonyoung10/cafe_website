@@ -1,8 +1,9 @@
 import { Instance, Instances, Text } from '@react-three/drei';
-import { Suspense, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { BoxGeometry, CircleGeometry, ConeGeometry, CylinderGeometry, DoubleSide, Group, MeshStandardMaterial, SphereGeometry } from 'three';
-import { COLORS, SCENE_COLORS as C } from '@/styles/tokens';
-import type { Point3 } from '@/types/three';
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, type RefObject } from 'react';
+import { BoxGeometry, CircleGeometry, ConeGeometry, CylinderGeometry, DoubleSide, Group, type MeshBasicMaterial, MeshStandardMaterial, SphereGeometry } from 'three';
+import { SCENE_COLORS as C } from '@/styles/tokens';
+import type { Point3, TimeOfDay } from '@/types/three';
+import DaylightRig from './DaylightRig';
 import { CHAIRS, COUNTER, DISPLAY, PENDANTS, PLANTERS, STOOLS, TABLES, WINDOW_BAR } from './layout';
 import { getTextures, retainTextures } from './textures';
 import menuFont from './cafe-grid.ttf?url';
@@ -108,7 +109,7 @@ function buildFurniture(): Shape[] {
 }
 const SHAPES = buildFurniture();
 
-function Furniture({ shadows }: { shadows: boolean }) {
+function Furniture({ shadows, bulbRef }: { shadows: boolean; bulbRef: RefObject<MeshStandardMaterial | null> }) {
   const geometries = useMemo(() => ({ box: new BoxGeometry(1, 1, 1), cylinder: new CylinderGeometry(0.5, 0.5, 1, 12), sphere: new SphereGeometry(0.5, 10, 8), cone: new ConeGeometry(0.5, 1, 16), leaf: new CircleGeometry(0.5, 10) }), []);
   const materials = useMemo(() => ({ matte: new MeshStandardMaterial({ roughness: 0.8, side: DoubleSide }), metal: new MeshStandardMaterial({ roughness: 0.3, metalness: 0.8 }), glass: new MeshStandardMaterial({ transparent: true, opacity: 0.22, roughness: 0.2, depthWrite: false }), bulb: new MeshStandardMaterial({ emissive: C.warmLight, emissiveIntensity: 1.3 }) }), []);
   const batches = useMemo(() => {
@@ -119,6 +120,10 @@ function Furniture({ shadows }: { shadows: boolean }) {
     }
     return [...result.entries()];
   }, []);
+  useLayoutEffect(() => {
+    bulbRef.current = materials.bulb;
+    return () => { bulbRef.current = null; };
+  }, [bulbRef, materials]);
   useEffect(() => () => {
     Object.values(geometries).forEach((geometry) => geometry.dispose());
     Object.values(materials).forEach((material) => material.dispose());
@@ -132,26 +137,45 @@ function Furniture({ shadows }: { shadows: boolean }) {
   })}</>;
 }
 
-export default function CafeScene({ coarse = false, preview = false }: { coarse?: boolean; preview?: boolean }) {
+interface CafeSceneProps {
+  coarse?: boolean;
+  preview?: boolean;
+  /** '하루의 빛' 시간대 (docs/07 §4.1) */
+  timeOfDay?: TimeOfDay;
+  /** 조명 전환을 보간 없이 즉시 적용 (reduced-motion) */
+  instantLighting?: boolean;
+}
+
+export default function CafeScene({ coarse = false, preview = false, timeOfDay = 'afternoon', instantLighting = false }: CafeSceneProps) {
   const textures = useMemo(() => getTextures(), []);
   const root = useRef<Group>(null);
+  const ceiling = useRef<MeshStandardMaterial>(null);
+  const glass = useRef<MeshStandardMaterial>(null);
+  const outside = useRef<MeshBasicMaterial>(null);
+  const bulb = useRef<MeshStandardMaterial>(null);
+  const lightingMaterials = useMemo(() => ({ ceiling, glass, outside, bulb }), []);
   useEffect(() => retainTextures(textures), [textures]);
   useLayoutEffect(() => { if (root.current) { root.current.updateMatrix(); root.current.matrixAutoUpdate = false; } }, []);
   return <>
-    <color attach="background" args={[COLORS.cream]} />
-    <hemisphereLight args={['#FFF4E2', '#A88B6E', 0.6]} />
-    <directionalLight position={[3, 6, 9]} color={C.sunlight} intensity={2.2} castShadow={!preview} shadow-mapSize-width={coarse ? 512 : 1024} shadow-mapSize-height={coarse ? 512 : 1024} shadow-camera-left={-8} shadow-camera-right={8} shadow-camera-top={7} shadow-camera-bottom={-7} shadow-camera-near={0.5} shadow-camera-far={24} shadow-normalBias={0.035} shadow-bias={-0.0001} />
-    {PENDANTS.slice(0, coarse || preview ? 2 : 4).map(([x, y, z], i) => <pointLight key={i} position={[x, y - 0.25, z]} color={C.warmLight} intensity={0.6} distance={4} decay={2} />)}
+    <DaylightRig
+      timeOfDay={timeOfDay}
+      materials={lightingMaterials}
+      pendants={PENDANTS.slice(0, coarse || preview ? 2 : 4)}
+      castShadow={!preview}
+      shadowMapSize={coarse ? 512 : 1024}
+      instant={preview || instantLighting}
+      exposeDebug={!preview}
+    />
     <group ref={root}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow={!preview}><planeGeometry args={[12, 9]} /><meshStandardMaterial map={textures.floor} roughness={0.85} /></mesh>
       <mesh position={[0, 1.6, -4.55]} receiveShadow={!preview}><boxGeometry args={[12.2, 3.2, 0.1]} /><meshStandardMaterial color={C.plaster} /></mesh>
       {[-6.05, 6.05].map((x) => <mesh key={x} position={[x, 1.6, 0]} receiveShadow={!preview}><boxGeometry args={[0.1, 3.2, 9.1]} /><meshStandardMaterial color={C.plaster} /></mesh>)}
-      <mesh position={[0, 3.25, 0]}><boxGeometry args={[12.2, 0.1, 9.2]} /><meshStandardMaterial color={C.ceiling} emissive={C.ceiling} emissiveIntensity={0.42} roughness={0.95} /></mesh>
+      <mesh position={[0, 3.25, 0]}><boxGeometry args={[12.2, 0.1, 9.2]} /><meshStandardMaterial ref={ceiling} color={C.ceiling} emissive={C.ceiling} emissiveIntensity={0.42} roughness={0.95} /></mesh>
       {[0.23, 3.08].map((y) => <mesh key={y} position={[0, y, 4.5]}><boxGeometry args={[12, y < 1 ? 0.46 : 0.24, 0.1]} /><meshStandardMaterial color={C.plaster} /></mesh>)}
       {[-5.78, 5.78].map((x) => <mesh key={x} position={[x, 1.7, 4.5]}><boxGeometry args={[0.44, 2.5, 0.1]} /><meshStandardMaterial color={C.plaster} /></mesh>)}
-      <mesh position={[0, 1.7, 4.51]}><planeGeometry args={[11, 2.45]} /><meshStandardMaterial color={C.glass} emissive={C.sky} emissiveIntensity={0.15} transparent opacity={0.12} side={DoubleSide} depthWrite={false} /></mesh>
-      <mesh position={[0, 2.5, 5.5]} rotation={[0, Math.PI, 0]}><planeGeometry args={[18, 6]} /><meshBasicMaterial map={textures.garden} side={DoubleSide} /></mesh>
-      <Furniture shadows={!preview} />
+      <mesh position={[0, 1.7, 4.51]}><planeGeometry args={[11, 2.45]} /><meshStandardMaterial ref={glass} color={C.glass} emissive={C.sky} emissiveIntensity={0.15} transparent opacity={0.12} side={DoubleSide} depthWrite={false} /></mesh>
+      <mesh position={[0, 2.5, 5.5]} rotation={[0, Math.PI, 0]}><planeGeometry args={[18, 6]} /><meshBasicMaterial ref={outside} map={textures.garden} side={DoubleSide} /></mesh>
+      <Furniture shadows={!preview} bulbRef={bulb} />
       <Suspense fallback={null}>
         <Text font={menuFont} characters="LEAFCOFF ESPRESSOLATTEMATCHAEARLGREYSCONE" position={[-4, 2.56, -4.3]} fontSize={0.16} color={C.oakLight}>LEAF COFFEE</Text>
         <Text font={menuFont} characters="LEAFCOFF ESPRESSOLATTEMATCHAEARLGREYSCONE" position={[-4, 1.92, -4.3]} fontSize={0.11} lineHeight={1.9} color={C.ceramic}>{'ESPRESSO\nLATTE\nMATCHA\nEARL GREY\nSCONE'}</Text>

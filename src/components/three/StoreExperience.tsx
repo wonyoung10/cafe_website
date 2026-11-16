@@ -1,18 +1,19 @@
 import { PerformanceMonitor } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import { Footprints, Maximize, Orbit, RotateCcw, X } from 'lucide-react';
+import { Footprints, Maximize, Moon, Orbit, RotateCcw, Sun, Sunrise, X, type LucideIcon } from 'lucide-react';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { ACESFilmicToneMapping, SRGBColorSpace } from 'three';
 import { LeafMark } from '@/components/common/BrandLogo';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { HOTSPOTS } from '@/data/hotspots';
-import type { Hotspot, StoreMode } from '@/types/three';
+import type { Hotspot, StoreMode, TimeOfDay } from '@/types/three';
 import { isWebGLAvailable } from '@/utils/webgl';
 import CameraRig, { type ViewRequest } from './controls/CameraRig';
 import DirectionPad from './controls/DirectionPad';
 import type { WalkInput } from './controls/WalkControls';
 import LoadingOverlay from './LoadingOverlay';
 import CafeScene from './scene/CafeScene';
+import { DAYLIGHT_PRESETS, getTimeOfDay, TIME_OF_DAY_ORDER } from './scene/daylight';
 import HotspotMarkers from './scene/HotspotMarkers';
 import HotspotProjector from './scene/HotspotProjector';
 import { DEFAULT_VIEW } from './scene/layout';
@@ -20,6 +21,7 @@ import { useMedia, useSceneVisible } from './useSceneEnvironment';
 import WebGLFallback from './WebGLFallback';
 
 const toolbarButton = 'flex min-h-11 items-center justify-center gap-2 rounded-full px-3 text-xs font-medium transition-colors sm:text-sm';
+const TIME_ICONS: Record<TimeOfDay, LucideIcon> = { morning: Sunrise, afternoon: Sun, evening: Moon };
 const hints = {
   orbit: { desktop: '드래그: 회전 · 휠: 확대/축소 · 우클릭 드래그: 이동', touch: '한 손가락: 회전 · 두 손가락: 확대/이동' },
   walk: { desktop: 'W A S D / 방향키: 이동 · 드래그: 둘러보기 · Shift: 빠르게', touch: '방향 패드: 이동 · 드래그: 둘러보기' },
@@ -29,6 +31,7 @@ export default function StoreExperience() {
   const [supported] = useState(isWebGLAvailable);
   const [lost, setLost] = useState(false);
   const [mode, setMode] = useState<StoreMode>('orbit');
+  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>(() => getTimeOfDay());
   const [active, setActive] = useState<Hotspot | null>(null);
   const [request, setRequest] = useState<ViewRequest>({ serial: 0, view: DEFAULT_VIEW });
   const [ready, setReady] = useState(false);
@@ -41,6 +44,8 @@ export default function StoreExperience() {
   const markers = useRef<Map<string, HTMLElement>>(new Map());
   const returnFocus = useRef<HTMLElement | null>(null);
   const coarse = useMedia('(pointer: coarse)');
+  const reduceMotion = useMedia('(prefers-reduced-motion: reduce)');
+  const daylight = DAYLIGHT_PRESETS[timeOfDay];
   const visible = useSceneVisible(frame);
   const markReady = useCallback(() => setReady(true), []);
   const select = useCallback((spot: Hotspot) => {
@@ -79,11 +84,11 @@ export default function StoreExperience() {
   };
   if (!supported || lost) return <WebGLFallback />;
   return <ErrorBoundary fallback={<WebGLFallback />}>
-    <div ref={frame} className="relative grid min-w-0 overflow-hidden rounded-[1.75rem] border border-line bg-cream lg:grid-cols-[minmax(0,1fr)_13rem]">
+    <div ref={frame} data-time-of-day={timeOfDay} className="relative grid min-w-0 overflow-hidden rounded-[1.75rem] border border-line bg-cream lg:grid-cols-[minmax(0,1fr)_13rem]">
       <div className="relative h-[calc(100svh-var(--header-height)-7rem)] min-h-[420px] bg-cream sm:min-h-[480px]">
         <Canvas aria-label="하루의 잎 가상 매장. 둘러보기와 실내 탐색이 가능한 3D 공간" shadows dpr={lowDpr ? 1 : [1, coarse ? 1.5 : 1.75]} frameloop={visible ? 'always' : 'never'} camera={{ position: DEFAULT_VIEW.position, fov: 60, near: 0.08, far: 45 }} gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping, outputColorSpace: SRGBColorSpace }} style={{ touchAction: 'none' }}>
           <Suspense fallback={null}>
-            <CafeScene coarse={coarse} />
+            <CafeScene coarse={coarse} timeOfDay={timeOfDay} instantLighting={reduceMotion} />
             <HotspotProjector markers={markers} />
             <CameraRig mode={mode} request={request} input={input} onReady={markReady} />
             <PerformanceMonitor onDecline={() => setLowDpr(true)} onFallback={() => setLowDpr(true)} />
@@ -96,10 +101,20 @@ export default function StoreExperience() {
             <button type="button" aria-pressed={mode === 'walk'} onClick={() => changeMode('walk')} className={`${toolbarButton} ${mode === 'walk' ? 'bg-forest text-ivory' : 'text-forest hover:bg-sage-soft'}`}><Footprints aria-hidden className="size-4" />실내 탐색</button>
           </div>
           <button type="button" onClick={() => changeMode('orbit')} className={`${toolbarButton} border border-line bg-ivory/95 text-forest shadow-soft hover:bg-sage-soft`}><RotateCcw aria-hidden className="size-4" /><span className="sr-only sm:not-sr-only">시점 초기화</span></button>
+          <div role="group" aria-label="하루의 빛" className="flex rounded-full border border-line bg-ivory/95 p-1 shadow-soft sm:ml-auto">
+            {TIME_OF_DAY_ORDER.map((id) => {
+              const Icon = TIME_ICONS[id];
+              const selected = id === timeOfDay;
+              return <button key={id} type="button" aria-pressed={selected} onClick={() => setTimeOfDay(id)} className={`${toolbarButton} ${selected ? 'bg-forest text-ivory' : 'text-forest hover:bg-sage-soft'}`}><Icon aria-hidden className="size-4" />{DAYLIGHT_PRESETS[id].label}</button>;
+            })}
+          </div>
           {fullscreenSupported && <button type="button" onClick={() => void fullscreen()} className={`${toolbarButton} border border-line bg-ivory/95 text-forest shadow-soft hover:bg-sage-soft`}><Maximize aria-hidden className="size-4" /><span className="sr-only sm:not-sr-only">전체화면</span></button>}
         </div>
         {fullscreenError && <p role="status" className="absolute top-28 left-4 z-30 rounded-xl bg-ivory px-4 py-2 text-sm text-ink">전체화면을 열 수 없어요.</p>}
-        <p className="pointer-events-none absolute bottom-3 left-3 z-10 max-w-[calc(100%-1.5rem)] rounded-2xl border border-line bg-ivory/95 px-4 py-2 text-xs leading-relaxed text-ink-soft shadow-soft">{hints[mode][coarse ? 'touch' : 'desktop']}</p>
+        <div className="pointer-events-none absolute bottom-3 left-3 z-10 max-w-[calc(100%-1.5rem)] rounded-2xl border border-line bg-ivory/95 px-4 py-2.5 shadow-soft sm:max-w-sm">
+          <p aria-live="polite" className="font-serif text-sm font-bold text-forest"><span className="sr-only">조명: </span>{daylight.label}, {daylight.caption}</p>
+          <p className="mt-1 text-xs leading-relaxed text-ink-soft">{hints[mode][coarse ? 'touch' : 'desktop']}</p>
+        </div>
         {mode === 'walk' && coarse && <DirectionPad input={input} />}
         {active && <div ref={panel} tabIndex={-1} role="region" aria-labelledby="hotspot-title" className="absolute right-0 bottom-0 left-0 z-30 rounded-t-3xl border border-line bg-ivory p-6 shadow-lift sm:right-5 sm:bottom-16 sm:left-auto sm:max-w-xs sm:rounded-2xl">
           <button type="button" onClick={closePanel} aria-label="공간 설명 닫기" className="absolute top-2 right-2 flex size-11 items-center justify-center rounded-full text-forest hover:bg-sage-soft"><X aria-hidden className="size-5" /></button>
