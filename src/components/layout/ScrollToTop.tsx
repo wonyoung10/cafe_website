@@ -10,7 +10,11 @@ export default function ScrollToTop() {
 
   useEffect(() => {
     if (hash) {
-      const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+      let id = hash.slice(1);
+      try { id = decodeURIComponent(id); } catch {
+        // A malformed URL fragment must not crash the whole route.
+      }
+      const target = document.getElementById(id);
       if (target) {
         target.scrollIntoView({ block: 'start' });
         return;

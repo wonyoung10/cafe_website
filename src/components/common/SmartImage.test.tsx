@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import SmartImage from '@/components/common/SmartImage';
 
 describe('SmartImage', () => {
@@ -14,5 +14,14 @@ describe('SmartImage', () => {
     expect(screen.getByRole('img')).toHaveAttribute('loading', 'lazy');
     rerender(<SmartImage src="/a.webp" alt="a" priority />);
     expect(screen.getByRole('img')).toHaveAttribute('loading', 'eager');
+  });
+
+  it('이미 캐시되어 로드가 끝난 이미지도 표시한다 (load 이벤트 누락 대비)', () => {
+    const complete = vi.spyOn(HTMLImageElement.prototype, 'complete', 'get').mockReturnValue(true);
+    const width = vi.spyOn(HTMLImageElement.prototype, 'naturalWidth', 'get').mockReturnValue(800);
+    render(<SmartImage src="/cached.webp" alt="캐시 이미지" />);
+    expect(screen.getByRole('img', { name: '캐시 이미지' })).toHaveClass('opacity-100');
+    complete.mockRestore();
+    width.mockRestore();
   });
 });

@@ -13,11 +13,12 @@ import type { WalkInput } from './controls/WalkControls';
 import LoadingOverlay from './LoadingOverlay';
 import CafeScene from './scene/CafeScene';
 import HotspotMarkers from './scene/HotspotMarkers';
+import HotspotProjector from './scene/HotspotProjector';
 import { DEFAULT_VIEW } from './scene/layout';
 import { useMedia, useSceneVisible } from './useSceneEnvironment';
 import WebGLFallback from './WebGLFallback';
 
-const toolbarButton = 'flex min-h-11 items-center justify-center gap-2 rounded-full px-3 text-xs font-medium text-forest transition-colors hover:bg-sage-soft sm:text-sm';
+const toolbarButton = 'flex min-h-11 items-center justify-center gap-2 rounded-full px-3 text-xs font-medium transition-colors sm:text-sm';
 const hints = {
   orbit: { desktop: '드래그: 회전 · 휠: 확대/축소 · 우클릭 드래그: 이동', touch: '한 손가락: 회전 · 두 손가락: 확대/이동' },
   walk: { desktop: 'W A S D / 방향키: 이동 · 드래그: 둘러보기 · Shift: 빠르게', touch: '방향 패드: 이동 · 드래그: 둘러보기' },
@@ -36,6 +37,7 @@ export default function StoreExperience() {
   const frame = useRef<HTMLDivElement>(null);
   const input = useRef<WalkInput>({ forward: false, backward: false, left: false, right: false });
   const panel = useRef<HTMLDivElement>(null);
+  const markers = useRef<Map<string, HTMLElement>>(new Map());
   const returnFocus = useRef<HTMLElement | null>(null);
   const coarse = useMedia('(pointer: coarse)');
   const visible = useSceneVisible(frame);
@@ -78,21 +80,22 @@ export default function StoreExperience() {
   return <ErrorBoundary fallback={<WebGLFallback />}>
     <div ref={frame} className="relative grid min-w-0 overflow-hidden rounded-[1.75rem] border border-line bg-cream lg:grid-cols-[minmax(0,1fr)_13rem]">
       <div className="relative h-[calc(100svh-var(--header-height)-7rem)] min-h-[420px] bg-cream sm:min-h-[480px]">
-        <Canvas aria-label="하루의 잎 가상 매장. 둘러보기와 실내 탐색이 가능한 3D 공간" shadows="soft" dpr={lowDpr ? 1 : [1, coarse ? 1.5 : 1.75]} frameloop={visible ? 'always' : 'never'} camera={{ position: DEFAULT_VIEW.position, fov: 60, near: 0.08, far: 45 }} gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping, outputColorSpace: SRGBColorSpace }} style={{ touchAction: 'none' }}>
+        <Canvas aria-label="하루의 잎 가상 매장. 둘러보기와 실내 탐색이 가능한 3D 공간" shadows dpr={lowDpr ? 1 : [1, coarse ? 1.5 : 1.75]} frameloop={visible ? 'always' : 'never'} camera={{ position: DEFAULT_VIEW.position, fov: 60, near: 0.08, far: 45 }} gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping, outputColorSpace: SRGBColorSpace }} style={{ touchAction: 'none' }}>
           <Suspense fallback={null}>
             <CafeScene coarse={coarse} />
-            <HotspotMarkers activeId={active?.id} onSelect={select} />
+            <HotspotProjector markers={markers} />
             <CameraRig mode={mode} request={request} input={input} onReady={markReady} />
             <PerformanceMonitor onDecline={() => setLowDpr(true)} onFallback={() => setLowDpr(true)} />
           </Suspense>
         </Canvas>
+        <HotspotMarkers activeId={active?.id} onSelect={select} markers={markers} />
         <div role="toolbar" aria-label="매장 조작" className="absolute top-3 right-3 left-3 z-30 flex flex-wrap items-center gap-1 sm:gap-2">
           <div role="group" aria-label="탐색 모드" className="flex rounded-full border border-line bg-ivory/95 p-1 shadow-soft">
-            <button type="button" aria-pressed={mode === 'orbit'} onClick={() => changeMode('orbit')} className={`${toolbarButton} ${mode === 'orbit' ? 'bg-sage-soft' : ''}`}><Orbit aria-hidden className="size-4" />둘러보기</button>
-            <button type="button" aria-pressed={mode === 'walk'} onClick={() => changeMode('walk')} className={`${toolbarButton} ${mode === 'walk' ? 'bg-sage-soft' : ''}`}><Footprints aria-hidden className="size-4" />실내 탐색</button>
+            <button type="button" aria-pressed={mode === 'orbit'} onClick={() => changeMode('orbit')} className={`${toolbarButton} ${mode === 'orbit' ? 'bg-forest text-ivory' : 'text-forest hover:bg-sage-soft'}`}><Orbit aria-hidden className="size-4" />둘러보기</button>
+            <button type="button" aria-pressed={mode === 'walk'} onClick={() => changeMode('walk')} className={`${toolbarButton} ${mode === 'walk' ? 'bg-forest text-ivory' : 'text-forest hover:bg-sage-soft'}`}><Footprints aria-hidden className="size-4" />실내 탐색</button>
           </div>
-          <button type="button" onClick={() => changeMode('orbit')} className={`${toolbarButton} border border-line bg-ivory/95 shadow-soft`}><RotateCcw aria-hidden className="size-4" /><span className="sr-only sm:not-sr-only">시점 초기화</span></button>
-          {fullscreenSupported && <button type="button" onClick={() => void fullscreen()} className={`${toolbarButton} border border-line bg-ivory/95 shadow-soft`}><Maximize aria-hidden className="size-4" /><span className="sr-only sm:not-sr-only">전체화면</span></button>}
+          <button type="button" onClick={() => changeMode('orbit')} className={`${toolbarButton} border border-line bg-ivory/95 text-forest shadow-soft hover:bg-sage-soft`}><RotateCcw aria-hidden className="size-4" /><span className="sr-only sm:not-sr-only">시점 초기화</span></button>
+          {fullscreenSupported && <button type="button" onClick={() => void fullscreen()} className={`${toolbarButton} border border-line bg-ivory/95 text-forest shadow-soft hover:bg-sage-soft`}><Maximize aria-hidden className="size-4" /><span className="sr-only sm:not-sr-only">전체화면</span></button>}
         </div>
         {fullscreenError && <p role="status" className="absolute top-28 left-4 z-30 rounded-xl bg-ivory px-4 py-2 text-sm text-ink">전체화면을 열 수 없어요.</p>}
         <p className="pointer-events-none absolute bottom-3 left-3 z-10 max-w-[calc(100%-1.5rem)] rounded-2xl border border-line bg-ivory/95 px-4 py-2 text-xs leading-relaxed text-ink-soft shadow-soft">{hints[mode][coarse ? 'touch' : 'desktop']}</p>
