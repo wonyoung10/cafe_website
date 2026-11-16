@@ -23,7 +23,7 @@ export default function StorePreviewSection() {
   return (
     <Section tone="paper" aria-labelledby="store-preview-heading" containerClassName="grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
       <div>
-        <SectionHeading id="store-preview-heading" eyebrow="A space to pause" title="햇살이 머무는 공간을 먼저 걸어보세요." description="원목의 온기와 식물의 초록 사이, 잠시 쉬어 갈 자리를 찾아보세요." />
+        <SectionHeading id="store-preview-heading" title="햇살이 머무는 공간을 먼저 걸어보세요." description="원목의 온기와 식물의 초록 사이, 잠시 쉬어 갈 자리를 찾아보세요." />
         <ButtonLink to={ROUTES.store} className="mt-8" withArrow>매장 들어가기</ButtonLink>
       </div>
       <div ref={ref} className="aspect-[4/3] min-w-0 overflow-hidden rounded-[2rem] border border-line bg-cream shadow-soft md:aspect-[16/10]">

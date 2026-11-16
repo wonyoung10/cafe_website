@@ -12,14 +12,14 @@ export default function Footer() {
       <Container className="grid gap-12 py-16 md:grid-cols-[1.4fr_1fr_1fr] md:py-20">
         <div>
           <Link to={ROUTES.home} aria-label={`${BRAND.name} 홈으로`} className="inline-block rounded-full">
-            <BrandLogo tone="light" showSubtitle />
+            <BrandLogo tone="light" />
           </Link>
           <p className="mt-6 max-w-sm font-serif text-lg leading-relaxed text-ivory/85">{BRAND.tagline}</p>
           <p className="mt-2 max-w-sm text-sm text-ivory/60">{BRAND.subTagline}</p>
         </div>
 
         <nav aria-label="하단 메뉴">
-          <p className="text-eyebrow text-sage">Explore</p>
+          <p className="text-sm font-semibold text-sage">둘러보기</p>
           <ul className="mt-4 space-y-2">
             {NAV_ITEMS.map((item) => (
               <li key={item.to}>
@@ -32,7 +32,7 @@ export default function Footer() {
         </nav>
 
         <div>
-          <p className="text-eyebrow text-sage">Visit</p>
+          <p className="text-sm font-semibold text-sage">찾아오기</p>
           <p className="mt-4 flex gap-2 text-ivory/80">
             <MapPin aria-hidden className="mt-1.5 size-4 shrink-0 text-sage" />
             <span>{CAFE_LOCATION.address}</span>

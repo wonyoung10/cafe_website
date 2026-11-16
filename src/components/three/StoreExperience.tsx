@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { Footprints, Maximize, Orbit, RotateCcw, X } from 'lucide-react';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { ACESFilmicToneMapping, SRGBColorSpace } from 'three';
+import { LeafMark } from '@/components/common/BrandLogo';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { HOTSPOTS } from '@/data/hotspots';
 import type { Hotspot, StoreMode } from '@/types/three';
@@ -102,14 +103,14 @@ export default function StoreExperience() {
         {mode === 'walk' && coarse && <DirectionPad input={input} />}
         {active && <div ref={panel} tabIndex={-1} role="region" aria-labelledby="hotspot-title" className="absolute right-0 bottom-0 left-0 z-30 rounded-t-3xl border border-line bg-ivory p-6 shadow-lift sm:right-5 sm:bottom-16 sm:left-auto sm:max-w-xs sm:rounded-2xl">
           <button type="button" onClick={closePanel} aria-label="공간 설명 닫기" className="absolute top-2 right-2 flex size-11 items-center justify-center rounded-full text-forest hover:bg-sage-soft"><X aria-hidden className="size-5" /></button>
-          <p className="text-eyebrow mb-2">A quiet corner</p><h2 id="hotspot-title" className="pr-7 font-serif text-xl font-bold text-forest">{active.title}</h2><p className="mt-3 text-sm leading-relaxed text-ink-soft">{active.description}</p>
+          <h2 id="hotspot-title" className="pr-7 font-serif text-xl font-bold text-forest">{active.title}</h2><p className="mt-3 text-sm leading-relaxed text-ink-soft">{active.description}</p>
         </div>}
         <LoadingOverlay ready={ready} />
       </div>
       <aside className="min-w-0 border-t border-line bg-ivory/95 p-4 lg:border-t-0 lg:border-l lg:p-5" aria-label="공간 둘러보기">
         <h2 className="mb-3 font-serif text-base font-bold text-forest">공간 둘러보기</h2>
         <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
-          {HOTSPOTS.map((spot, index) => <button key={spot.id} type="button" aria-pressed={active?.id === spot.id} onClick={() => select(spot)} className={`flex min-h-11 shrink-0 items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors ${active?.id === spot.id ? 'border-forest bg-forest text-ivory' : 'border-line text-forest hover:bg-sage-soft'}`}><span aria-hidden className="text-xs opacity-70">0{index + 1}</span>{spot.title}</button>)}
+          {HOTSPOTS.map((spot) => <button key={spot.id} type="button" aria-pressed={active?.id === spot.id} onClick={() => select(spot)} className={`flex min-h-11 shrink-0 items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors ${active?.id === spot.id ? 'border-forest bg-forest text-ivory' : 'border-line text-forest hover:bg-sage-soft'}`}><LeafMark className="size-4 shrink-0 text-sage" />{spot.title}</button>)}
         </div>
         <p className="mt-6 hidden text-xs leading-relaxed text-ink-soft lg:block">잎 모양 표시를 누르면<br />공간의 이야기를 만날 수 있어요.</p>
       </aside>

@@ -12,7 +12,7 @@ export default function FeaturedMenuSection() {
   return (
     <Section aria-labelledby="featured-heading">
       <div className="mb-9 flex flex-wrap items-end justify-between gap-5 md:mb-12">
-        <SectionHeading id="featured-heading" eyebrow="A leaf for today" title="오늘의 잎 한 장을 고르세요." />
+        <SectionHeading id="featured-heading" title="오늘의 잎 한 장을 고르세요." />
         <ButtonLink to={ROUTES.menu} variant="ghost" withArrow>전체 메뉴 보기</ButtonLink>
       </div>
       <div className="grid grid-cols-2 gap-5 md:gap-6 lg:grid-cols-4">
