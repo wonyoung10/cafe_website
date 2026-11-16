@@ -16,10 +16,14 @@ export interface MenuItem {
   image: string;
   /** 홈 대표 메뉴 노출 여부 (정확히 4개) */
   featured?: boolean;
+  /** 메뉴소개 페이지에서 카테고리를 여는 대표 메뉴 (카테고리마다 정확히 1개) */
+  lead?: boolean;
 }
 
 export interface MenuCategoryInfo {
   id: MenuCategory;
   label: string;
+  /** 섹션 제목에 쓰는 한국어 이름 */
+  title: string;
   description: string;
 }

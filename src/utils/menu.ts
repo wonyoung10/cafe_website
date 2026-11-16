@@ -32,3 +32,28 @@ export const CATEGORY_LABEL_KO: Record<MenuCategory, string> = {
   tea: '티',
   dessert: '디저트',
 };
+
+/** 카테고리의 메뉴를 대표 메뉴(lead)가 맨 앞에 오도록 정렬해 반환한다. 나머지는 데이터 순서 유지. */
+export function getCategoryItems(items: readonly MenuItem[], category: MenuCategory): MenuItem[] {
+  const inCategory = items.filter((item) => item.category === category);
+  const lead = inCategory.find((item) => item.lead);
+  return lead ? [lead, ...inCategory.filter((item) => item !== lead)] : inCategory;
+}
+
+/**
+ * 데스크톱 3열 격자에서 대표 카드가 차지할 모양.
+ * 나머지 카드 수에 맞춰 마지막 줄이 비지 않도록 고른다.
+ *  - wide: 2칸 × 1줄 (가로형) · tall: 2칸 × 2줄 (세로형) · full: 3칸 × 1줄 (가로형)
+ */
+export type LeadLayout = 'wide' | 'tall' | 'full';
+
+const LEAD_SLOTS: ReadonlyArray<readonly [LeadLayout, number]> = [
+  ['wide', 2],
+  ['tall', 4],
+  ['full', 3],
+];
+
+export function getLeadLayout(restCount: number, columns = 3): LeadLayout {
+  const match = LEAD_SLOTS.find(([, slots]) => (slots + restCount) % columns === 0);
+  return match?.[0] ?? 'full';
+}
