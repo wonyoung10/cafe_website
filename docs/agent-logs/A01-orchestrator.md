@@ -24,3 +24,9 @@
 - 사용자 선택: 디자인 수정 방향 1번. 범위가 3D 조명 한 곳에 집중된 작은 변경이라 Codex 위임 없이 A01이 A04 역할로 직접 구현.
 - 구현: `daylight.ts`(프리셋·`getTimeOfDay`), `DaylightRig.tsx`(조명·발광 재질·배경·노출 보간), 뷰어 툴바 '하루의 빛' 버튼 그룹(aria-pressed), 안내 칩에 시간대 설명(aria-live), 홈 미리보기 현재 시간대 적용.
 - 검증: 단위 테스트 추가(daylight 16건), E2E `하루의 빛` 시나리오 추가, 프로덕션 미리보기에서 세 시간대 데스크톱·모바일 스크린샷 확인, 콘솔 오류 0건.
+
+## 메뉴소개 '읽는 메뉴' 재구성 (2026-11-16, `feature/menu-editorial`)
+- 사용자 선택: 디자인 수정 방향 2번. A01이 A03 역할로 직접 구현.
+- 구현: `MenuCategorySection`(고정 사이드 제목 + 대표 카드 + 격자), `MenuCard` lead 변형(wide/tall/full), 데이터 `lead`·카테고리 `title`, `getCategoryItems`·`getLeadLayout` 유틸, 필터 막대 고정 + 목록 처음으로 스크롤. 미사용 `MenuGrid` 삭제.
+- 검증: 단위 93개(신규 14), E2E 71 passed / 3 skipped, 1440·390px 스크린샷 확인(가로 넘침 없음).
+- 같은 날 사용자 요청으로 이 저장소의 git `user.name`을 `wonyoung10`으로 변경(로컬 설정, 이후 커밋부터 적용).

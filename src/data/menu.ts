@@ -1,10 +1,10 @@
 import type { MenuCategoryInfo, MenuItem } from '@/types/menu';
 
 export const MENU_CATEGORIES: readonly MenuCategoryInfo[] = [
-  { id: 'coffee', label: 'Coffee', description: '매일 아침 갓 볶은 원두로 내리는 커피' },
-  { id: 'non-coffee', label: 'Non-Coffee', description: '커피 대신 부드럽고 상큼한 한 잔' },
-  { id: 'tea', label: 'Tea', description: '천천히 우려내는 따뜻한 차' },
-  { id: 'dessert', label: 'Dessert', description: '커피 곁에 두기 좋은 구움과자와 케이크' },
+  { id: 'coffee', label: 'Coffee', title: '커피', description: '매일 아침 갓 볶은 원두로 내리는 커피' },
+  { id: 'non-coffee', label: 'Non-Coffee', title: '논커피', description: '커피 대신 부드럽고 상큼한 한 잔' },
+  { id: 'tea', label: 'Tea', title: '차', description: '천천히 우려내는 따뜻한 차' },
+  { id: 'dessert', label: 'Dessert', title: '디저트', description: '커피 곁에 두기 좋은 구움과자와 케이크' },
 ];
 
 const img = (id: string) => `/images/menu/${id}.webp`;
@@ -38,6 +38,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     description: '에스프레소와 부드럽게 데운 우유의 조화. 잎사귀 라떼아트로 건네 드립니다.',
     temperatures: ['hot', 'ice'],
     image: img('cafe-latte'),
+    lead: true,
     featured: true,
   },
   {
@@ -103,6 +104,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     description: '곱게 갈은 말차를 직접 풀어낸 초록빛 라떼. 쌉싸름함 뒤에 고소함이 남습니다.',
     temperatures: ['hot', 'ice'],
     image: img('matcha-latte'),
+    lead: true,
     featured: true,
   },
   {
@@ -177,6 +179,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     description: '향긋한 유자청을 따뜻한 물에 풀어낸, 새콤달콤한 우리 차.',
     temperatures: ['hot', 'ice'],
     image: img('yuja-tea'),
+    lead: true,
   },
   // Dessert
   {
@@ -187,6 +190,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     description: '버터 향 가득한 결이 바삭하게 부서지는 클래식 크루아상.',
     temperatures: [],
     image: img('croissant'),
+    lead: true,
     featured: true,
   },
   {
