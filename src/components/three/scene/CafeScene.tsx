@@ -139,14 +139,14 @@ export default function CafeScene({ coarse = false, preview = false }: { coarse?
   useLayoutEffect(() => { if (root.current) { root.current.updateMatrix(); root.current.matrixAutoUpdate = false; } }, []);
   return <>
     <color attach="background" args={[COLORS.cream]} />
-    <hemisphereLight args={['#FFF4E2', '#8A6F55', 0.55]} />
+    <hemisphereLight args={['#FFF4E2', '#A88B6E', 0.6]} />
     <directionalLight position={[3, 6, 9]} color={C.sunlight} intensity={2.2} castShadow={!preview} shadow-mapSize-width={coarse ? 512 : 1024} shadow-mapSize-height={coarse ? 512 : 1024} shadow-camera-left={-8} shadow-camera-right={8} shadow-camera-top={7} shadow-camera-bottom={-7} shadow-camera-near={0.5} shadow-camera-far={24} shadow-normalBias={0.035} shadow-bias={-0.0001} />
     {PENDANTS.slice(0, coarse || preview ? 2 : 4).map(([x, y, z], i) => <pointLight key={i} position={[x, y - 0.25, z]} color={C.warmLight} intensity={0.6} distance={4} decay={2} />)}
     <group ref={root}>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow={!preview}><planeGeometry args={[12, 9]} /><meshStandardMaterial map={textures.floor} roughness={0.85} /></mesh>
       <mesh position={[0, 1.6, -4.55]} receiveShadow={!preview}><boxGeometry args={[12.2, 3.2, 0.1]} /><meshStandardMaterial color={C.plaster} /></mesh>
       {[-6.05, 6.05].map((x) => <mesh key={x} position={[x, 1.6, 0]} receiveShadow={!preview}><boxGeometry args={[0.1, 3.2, 9.1]} /><meshStandardMaterial color={C.plaster} /></mesh>)}
-      <mesh position={[0, 3.25, 0]}><boxGeometry args={[12.2, 0.1, 9.2]} /><meshStandardMaterial color={C.ceiling} /></mesh>
+      <mesh position={[0, 3.25, 0]}><boxGeometry args={[12.2, 0.1, 9.2]} /><meshStandardMaterial color={C.ceiling} emissive={C.ceiling} emissiveIntensity={0.42} roughness={0.95} /></mesh>
       {[0.23, 3.08].map((y) => <mesh key={y} position={[0, y, 4.5]}><boxGeometry args={[12, y < 1 ? 0.46 : 0.24, 0.1]} /><meshStandardMaterial color={C.plaster} /></mesh>)}
       {[-5.78, 5.78].map((x) => <mesh key={x} position={[x, 1.7, 4.5]}><boxGeometry args={[0.44, 2.5, 0.1]} /><meshStandardMaterial color={C.plaster} /></mesh>)}
       <mesh position={[0, 1.7, 4.51]}><planeGeometry args={[11, 2.45]} /><meshStandardMaterial color={C.glass} emissive={C.sky} emissiveIntensity={0.15} transparent opacity={0.12} side={DoubleSide} depthWrite={false} /></mesh>
