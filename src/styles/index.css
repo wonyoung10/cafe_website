@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+}
