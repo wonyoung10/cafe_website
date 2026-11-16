@@ -11,3 +11,4 @@ test-results/
 !.env.example
 .worktrees/
 .agent-runs/
+.claude/
