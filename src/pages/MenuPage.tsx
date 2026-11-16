@@ -30,7 +30,7 @@ export default function MenuPage() {
 
   return (
     <Section tone="paper" className="min-h-[70svh]">
-      <SectionHeading level={1} eyebrow="Our menu" title="메뉴소개" description="오늘의 잎 한 장을 고르세요." />
+      <SectionHeading level={1} title="메뉴소개" description="오늘의 잎 한 장을 고르세요." />
       <div className="mt-10 min-w-0 md:mt-12">
         <MenuFilter selected={selected} counts={counts} onChange={changeFilter} />
       </div>
