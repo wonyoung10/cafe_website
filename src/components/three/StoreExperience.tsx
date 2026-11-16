@@ -13,6 +13,7 @@ import type { WalkInput } from './controls/WalkControls';
 import LoadingOverlay from './LoadingOverlay';
 import CafeScene from './scene/CafeScene';
 import HotspotMarkers from './scene/HotspotMarkers';
+import HotspotProjector from './scene/HotspotProjector';
 import { DEFAULT_VIEW } from './scene/layout';
 import { useMedia, useSceneVisible } from './useSceneEnvironment';
 import WebGLFallback from './WebGLFallback';
@@ -36,6 +37,7 @@ export default function StoreExperience() {
   const frame = useRef<HTMLDivElement>(null);
   const input = useRef<WalkInput>({ forward: false, backward: false, left: false, right: false });
   const panel = useRef<HTMLDivElement>(null);
+  const markers = useRef<Map<string, HTMLElement>>(new Map());
   const returnFocus = useRef<HTMLElement | null>(null);
   const coarse = useMedia('(pointer: coarse)');
   const visible = useSceneVisible(frame);
@@ -81,11 +83,12 @@ export default function StoreExperience() {
         <Canvas aria-label="하루의 잎 가상 매장. 둘러보기와 실내 탐색이 가능한 3D 공간" shadows dpr={lowDpr ? 1 : [1, coarse ? 1.5 : 1.75]} frameloop={visible ? 'always' : 'never'} camera={{ position: DEFAULT_VIEW.position, fov: 60, near: 0.08, far: 45 }} gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping, outputColorSpace: SRGBColorSpace }} style={{ touchAction: 'none' }}>
           <Suspense fallback={null}>
             <CafeScene coarse={coarse} />
-            <HotspotMarkers activeId={active?.id} onSelect={select} />
+            <HotspotProjector markers={markers} />
             <CameraRig mode={mode} request={request} input={input} onReady={markReady} />
             <PerformanceMonitor onDecline={() => setLowDpr(true)} onFallback={() => setLowDpr(true)} />
           </Suspense>
         </Canvas>
+        <HotspotMarkers activeId={active?.id} onSelect={select} markers={markers} />
         <div role="toolbar" aria-label="매장 조작" className="absolute top-3 right-3 left-3 z-30 flex flex-wrap items-center gap-1 sm:gap-2">
           <div role="group" aria-label="탐색 모드" className="flex rounded-full border border-line bg-ivory/95 p-1 shadow-soft">
             <button type="button" aria-pressed={mode === 'orbit'} onClick={() => changeMode('orbit')} className={`${toolbarButton} ${mode === 'orbit' ? 'bg-forest text-ivory' : 'text-forest hover:bg-sage-soft'}`}><Orbit aria-hidden className="size-4" />둘러보기</button>

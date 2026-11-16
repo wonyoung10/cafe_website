@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 
 test('홈이 열리고 메인 카피가 보인다', async ({ page }) => {
   await page.goto('/');

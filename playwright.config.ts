@@ -5,6 +5,8 @@ const PORT = 4173;
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
+  // SwiftShader scenes compete for CPU/GPU resources; keep readiness checks reproducible.
+  workers: 2,
   retries: 0,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
