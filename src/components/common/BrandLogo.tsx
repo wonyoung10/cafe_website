@@ -35,7 +35,7 @@ export default function BrandLogo({ className, tone = 'default', showSubtitle = 
     <span className={cn('inline-flex items-center gap-2', className)}>
       <span
         className={cn(
-          'grid size-9 place-items-center rounded-full',
+          'grid size-9 place-items-center rounded-leaf-sm',
           tone === 'light' ? 'bg-ivory/10 text-sage' : 'bg-sage-soft text-forest',
         )}
       >

@@ -6,20 +6,24 @@
 
 | 토큰 | HEX | Tailwind 클래스 예 | 용도 |
 |---|---|---|---|
-| `ivory` | `#FBF8F1` | `bg-ivory` | 페이지 기본 배경 |
-| `cream` | `#F3EBDD` | `bg-cream` | 섹션 교차 배경, 카드 이미지 바탕 |
-| `cream-deep` | `#E8DCC6` | `bg-cream-deep` | 강조 배경, 칩 |
-| `line` | `#E2D7C5` | `border-line` | 구분선, 카드 테두리 |
-| `sage` | `#A7B596` | `bg-sage` | 포인트(잎), 활성 밑줄 |
-| `sage-soft` | `#DCE3D1` | `bg-sage-soft` | 배지 배경(ICE), 태그 |
-| `forest` | `#2F4A3A` | `bg-forest`, `text-forest` | 주 버튼, 활성 텍스트, 푸터 |
-| `forest-deep` | `#213529` | `hover:bg-forest-deep` | 버튼 hover |
-| `walnut` | `#6E4F3A` | `text-walnut` | eyebrow, 원목 포인트 |
-| `walnut-soft` | `#EADBCB` | `bg-walnut-soft` | 배지 배경(HOT) |
-| `ink` | `#2B2A26` | `text-ink` | 본문 텍스트 |
-| `ink-soft` | `#5E5A52` | `text-ink-soft` | 보조 텍스트 (ivory 대비 6.4:1) |
+| `ivory` | `#F4F3EA` | `bg-ivory` | 페이지 기본 배경 (잎 그늘이 진 종이) |
+| `cream` | `#EAEADB` | `bg-cream` | 섹션 교차 배경 (이끼빛) |
+| `cream-deep` | `#DCDDC7` | `bg-cream-deep` | 강조 배경, 칩 |
+| `line` | `#D6D5C0` | `border-line` | 구분선, 카드 테두리 |
+| `sage` | `#94AE7E` | `bg-sage` | 잎 포인트, 아이콘 |
+| `sage-soft` | `#DDE6CF` | `bg-sage-soft` | 배지 배경(ICE), 태그 |
+| `sprout` | `#A8C66C` | `bg-sprout` | 새잎 연두: 오늘의 잎, 활성 표시, 숲 바탕 위 라벨. 면 채움 전용(밝은 바탕 위 글자 금지) |
+| `forest` | `#2D4A35` | `bg-forest`, `text-forest` | 주 버튼, 제목, 푸터(숲) |
+| `forest-deep` | `#1E3426` | `hover:bg-forest-deep` | 버튼 hover, 숲 가장자리 뒷줄 |
+| `oak` | `#C9A27A` | `bg-oak`(결 텍스처) | 원목 테이블 상판 |
+| `oak-light` | `#E6D3B5` | — | `.bg-oak` 바탕색 |
+| `walnut` | `#6B4A33` | `text-walnut` | 섹션 앞 짧은 문구, 원목 포인트 |
+| `walnut-soft` | `#EBD9C4` | `bg-walnut-soft` | 배지 배경(HOT) |
+| `bark` | `#4A3628` | `stroke-bark` | 나뭇가지·줄기 선 |
+| `ink` | `#2C2A22` | `text-ink` | 본문 텍스트 |
+| `ink-soft` | `#5A574B` | `text-ink-soft` | 보조 텍스트 (ivory 대비 6.5:1) |
 
-규칙: 그린은 면적 10% 이내 포인트. 순수 흰색·검정 미사용.
+규칙: 그린은 면적 10% 이내 포인트(푸터 제외). 원목(`bg-oak`)은 메뉴 섹션 한 곳에만. 순수 흰색·검정 미사용. 그림자는 나무껍질 색(rgb 74 54 40) 기반.
 
 ## 2. 폰트와 타이포그래피
 
@@ -100,3 +104,12 @@
 - **순서가 아닌 목록에 번호(01, 02…)를 붙이지 않는다.** 매장 공간 목록은 3D 핫스팟과 같은 잎 표시를 쓴다.
 - **히어로:** 오늘 날짜(`11월 16일 월요일, 오늘의 작은 쉼`)로 '하루'를 구체화하고, 데스크톱에서 사진을 화면 오른쪽 끝까지 붙인다.
 - **주소는 세리프로 크게:** 홈 위치 요약과 오시는 길 주소 카드 모두 `font-serif` 700으로 강조한다.
+
+## 10. 나무와 잎 테마 (2026-11-16)
+
+페이지 전체를 '나무 아래에서' 보는 흐름으로 구성한다: 히어로는 나뭇잎 그림자(`LeafShade`), 메뉴는 원목 테이블(`bg-oak`), 푸터는 숲 가장자리 실루엣.
+
+- **잎 모양 모서리:** 왼쪽 위·오른쪽 아래만 크게 둥글린다. `rounded-leaf-sm`(1.375rem/0.375rem: 버튼·칩·배지·로고), `rounded-leaf`(1.75rem/0.5rem: 카드·안내 상자), `rounded-leaf-lg`(2.75rem/0.75rem: 큰 사진·지도·3D 프레임). 새 UI도 원형(`rounded-full`) 대신 이 규칙을 쓴다.
+- **나뭇잎 그림자:** 히어로 배경에만, 불투명도 13%, 14초 주기로 아주 느리게 흔들린다(`.animate-leaf-sway`, reduced-motion이면 정지).
+- **이번 주의 가지:** 지난 요일은 다 자란 `forest` 잎, 오늘은 `sprout` 새잎, 남은 요일은 점선 윤곽. 줄기는 `bark`.
+- **헤더 활성 표시:** 밑줄 대신 작은 `sprout` 잎.

@@ -84,7 +84,7 @@ export default function StoreExperience() {
   };
   if (!supported || lost) return <WebGLFallback />;
   return <ErrorBoundary fallback={<WebGLFallback />}>
-    <div ref={frame} data-time-of-day={timeOfDay} className="relative grid min-w-0 overflow-hidden rounded-[1.75rem] border border-line bg-cream lg:grid-cols-[minmax(0,1fr)_13rem]">
+    <div ref={frame} data-time-of-day={timeOfDay} className="relative grid min-w-0 overflow-hidden rounded-leaf-lg border border-line bg-cream lg:grid-cols-[minmax(0,1fr)_13rem]">
       <div className="relative h-[calc(100svh-var(--header-height)-7rem)] min-h-[420px] bg-cream sm:min-h-[480px]">
         <Canvas aria-label="하루의 잎 가상 매장. 둘러보기와 실내 탐색이 가능한 3D 공간" shadows dpr={lowDpr ? 1 : [1, coarse ? 1.5 : 1.75]} frameloop={visible ? 'always' : 'never'} camera={{ position: DEFAULT_VIEW.position, fov: 60, near: 0.08, far: 45 }} gl={{ antialias: true, powerPreference: 'high-performance', toneMapping: ACESFilmicToneMapping, outputColorSpace: SRGBColorSpace }} style={{ touchAction: 'none' }}>
           <Suspense fallback={null}>
@@ -125,7 +125,7 @@ export default function StoreExperience() {
       <aside className="min-w-0 border-t border-line bg-ivory/95 p-4 lg:border-t-0 lg:border-l lg:p-5" aria-label="공간 둘러보기">
         <h2 className="mb-3 font-serif text-base font-bold text-forest">공간 둘러보기</h2>
         <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
-          {HOTSPOTS.map((spot) => <button key={spot.id} type="button" aria-pressed={active?.id === spot.id} onClick={() => select(spot)} className={`flex min-h-11 shrink-0 items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors ${active?.id === spot.id ? 'border-forest bg-forest text-ivory' : 'border-line text-forest hover:bg-sage-soft'}`}><LeafMark className="size-4 shrink-0 text-sage" />{spot.title}</button>)}
+          {HOTSPOTS.map((spot) => <button key={spot.id} type="button" aria-pressed={active?.id === spot.id} onClick={() => select(spot)} className={`flex min-h-11 shrink-0 items-center gap-3 rounded-leaf-sm border px-4 py-3 text-left text-sm transition-colors ${active?.id === spot.id ? 'border-forest bg-forest text-ivory' : 'border-line text-forest hover:bg-sage-soft'}`}><LeafMark className="size-4 shrink-0 text-sage" />{spot.title}</button>)}
         </div>
         <p className="mt-6 hidden text-xs leading-relaxed text-ink-soft lg:block">잎 모양 표시를 누르면<br />공간의 이야기를 만날 수 있어요.</p>
       </aside>

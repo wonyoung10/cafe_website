@@ -2,25 +2,33 @@
 
 /* ───────────────────────── Design tokens (docs/05-design-system.md) ───────────────────────── */
 @theme {
-  --color-ivory: #fbf8f1;
-  --color-cream: #f3ebdd;
-  --color-cream-deep: #e8dcc6;
-  --color-line: #e2d7c5;
-  --color-sage: #a7b596;
-  --color-sage-soft: #dce3d1;
-  --color-forest: #2f4a3a;
-  --color-forest-deep: #213529;
-  --color-walnut: #6e4f3a;
-  --color-walnut-soft: #eadbcb;
-  --color-ink: #2b2a26;
-  --color-ink-soft: #5e5a52;
+  /* 바탕: 잎 그늘이 진 종이 */
+  --color-ivory: #f4f3ea;
+  --color-cream: #eaeadb;
+  --color-cream-deep: #dcddc7;
+  --color-line: #d6d5c0;
+  /* 잎: 다 자란 잎 → 숲, 새잎은 연두 */
+  --color-sage: #94ae7e;
+  --color-sage-soft: #dde6cf;
+  --color-sprout: #a8c66c;
+  --color-forest: #2d4a35;
+  --color-forest-deep: #1e3426;
+  /* 나무: 오크 상판, 월넛 결, 나무껍질 */
+  --color-oak: #c9a27a;
+  --color-oak-light: #e6d3b5;
+  --color-walnut: #6b4a33;
+  --color-walnut-soft: #ebd9c4;
+  --color-bark: #4a3628;
+  /* 글자 */
+  --color-ink: #2c2a22;
+  --color-ink-soft: #5a574b;
 
   --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
     'Noto Sans KR', 'Malgun Gothic', system-ui, sans-serif;
   --font-serif: 'Gowun Batang', 'Nanum Myeongjo', 'AppleMyungjo', serif;
 
-  --shadow-soft: 0 1px 2px rgb(43 42 38 / 0.04), 0 8px 24px -12px rgb(43 42 38 / 0.12);
-  --shadow-lift: 0 2px 4px rgb(43 42 38 / 0.05), 0 18px 40px -18px rgb(43 42 38 / 0.25);
+  --shadow-soft: 0 1px 2px rgb(74 54 40 / 0.06), 0 10px 24px -14px rgb(74 54 40 / 0.22);
+  --shadow-lift: 0 2px 4px rgb(74 54 40 / 0.08), 0 20px 40px -18px rgb(74 54 40 / 0.35);
 
   --ease-leaf: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -68,7 +76,7 @@
   }
 
   ::selection {
-    background: var(--color-sage-soft);
+    background: var(--color-sprout);
     color: var(--color-forest-deep);
   }
 
@@ -89,7 +97,7 @@
     left: 1rem;
     top: -4rem;
     z-index: 100;
-    border-radius: 9999px;
+    border-radius: 1.375rem 0.375rem;
     background: var(--color-forest);
     color: var(--color-ivory);
     padding: 0.625rem 1.125rem;
@@ -141,8 +149,44 @@
   .bg-paper {
     background-color: var(--color-cream);
     background-image:
-      radial-gradient(circle at 20% 15%, rgb(255 255 255 / 0.55), transparent 45%),
-      radial-gradient(circle at 85% 80%, rgb(167 181 150 / 0.18), transparent 50%);
+      radial-gradient(circle at 20% 15%, rgb(255 253 240 / 0.6), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgb(148 174 126 / 0.2), transparent 50%);
+  }
+}
+
+/* ───────────── 잎 모양 모서리: 대각선 두 모서리만 크게 둥글린다 (왼쪽 위·오른쪽 아래) ───────────── */
+@utility rounded-leaf-sm {
+  border-radius: 1.375rem 0.375rem;
+}
+@utility rounded-leaf {
+  border-radius: 1.75rem 0.5rem;
+}
+@utility rounded-leaf-lg {
+  border-radius: 2.75rem 0.75rem;
+}
+
+@layer components {
+  /* 원목 테이블 상판: 가로로 길게 늘인 노이즈로 나뭇결을 만든다 */
+  .bg-oak {
+    background-color: var(--color-oak-light);
+    background-image:
+      linear-gradient(180deg, rgb(255 250 240 / 0.35), transparent 40%, rgb(74 54 40 / 0.08)),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2400' height='800'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0012 0.085' numOctaves='4' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.29 0 0 0 0 0.2 1.45 0 0 0 -0.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    background-size: auto, 2400px 800px;
+  }
+
+  @keyframes leaf-sway {
+    0%,
+    100% {
+      transform: rotate(-1.2deg) translate3d(0, 0, 0);
+    }
+    50% {
+      transform: rotate(1.4deg) translate3d(6px, 3px, 0);
+    }
+  }
+  .animate-leaf-sway {
+    transform-origin: 10% 0%;
+    animation: leaf-sway 14s var(--ease-leaf) infinite;
   }
 }
 
