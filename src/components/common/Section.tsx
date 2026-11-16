@@ -3,7 +3,7 @@ import Container from '@/components/common/Container';
 import { cn } from '@/utils/cn';
 
 interface SectionProps extends ComponentPropsWithoutRef<'section'> {
-  tone?: 'ivory' | 'cream' | 'paper' | 'forest';
+  tone?: 'ivory' | 'cream' | 'paper' | 'oak' | 'forest';
   containerClassName?: string;
 }
 
@@ -11,6 +11,7 @@ const TONE_CLASS: Record<NonNullable<SectionProps['tone']>, string> = {
   ivory: 'bg-ivory',
   cream: 'bg-cream',
   paper: 'bg-paper',
+  oak: 'bg-oak',
   forest: 'bg-forest text-ivory',
 };
 

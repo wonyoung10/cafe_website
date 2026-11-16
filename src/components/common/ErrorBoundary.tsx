@@ -32,7 +32,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
         <button
           type="button"
           onClick={this.handleRetry}
-          className="h-11 rounded-full bg-forest px-5 font-semibold text-ivory hover:bg-forest-deep"
+          className="h-11 rounded-leaf-sm bg-forest px-5 font-semibold text-ivory hover:bg-forest-deep"
         >
           다시 시도
         </button>

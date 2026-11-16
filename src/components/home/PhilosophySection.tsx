@@ -21,7 +21,7 @@ export default function PhilosophySection() {
         <SmartImage
           src="/images/brand/philosophy.webp"
           alt="식물과 원목의 결이 어우러진 카페의 작은 쉼터"
-          wrapperClassName="aspect-[3/2] rounded-3xl"
+          wrapperClassName="aspect-[3/2] rounded-leaf-lg"
         />
         <div className="max-w-md space-y-5 text-ink-soft">
           {BRAND.story.map((paragraph) => (

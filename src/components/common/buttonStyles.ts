@@ -4,7 +4,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'light';
 export type ButtonSize = 'md' | 'lg';
 
 const BASE =
-  'group inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-[background-color,color,border-color,box-shadow] duration-200 ease-[var(--ease-leaf)] disabled:pointer-events-none disabled:opacity-50';
+  'group inline-flex items-center justify-center gap-2 rounded-leaf-sm font-semibold transition-[background-color,color,border-color,box-shadow] duration-200 ease-[var(--ease-leaf)] disabled:pointer-events-none disabled:opacity-50';
 
 const VARIANT: Record<ButtonVariant, string> = {
   primary: 'bg-forest text-ivory shadow-soft hover:bg-forest-deep',

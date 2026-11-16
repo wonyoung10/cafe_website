@@ -32,8 +32,8 @@ const VEIN = 'M0 -2C-1 -16 -2 -30 -2 -46';
 type LeafState = 'past' | 'today' | 'future';
 
 const LEAF_STYLE: Record<LeafState, { fill: string; stroke: string; vein: string }> = {
-  past: { fill: 'var(--color-sage)', stroke: 'var(--color-sage)', vein: 'var(--color-sage-soft)' },
-  today: { fill: 'var(--color-forest)', stroke: 'var(--color-forest)', vein: 'var(--color-sage)' },
+  past: { fill: 'var(--color-forest)', stroke: 'var(--color-forest)', vein: 'var(--color-sage)' },
+  today: { fill: 'var(--color-sprout)', stroke: 'var(--color-forest)', vein: 'var(--color-forest)' },
   future: { fill: 'var(--color-ivory)', stroke: 'var(--color-sage)', vein: 'var(--color-sage-soft)' },
 };
 
@@ -45,7 +45,7 @@ interface WeekBranchProps {
 
 /**
  * '하루에 잎 하나'를 이번 주 7일의 가지로 보여 준다.
- * 지난 요일은 세이지, 오늘은 포레스트, 남은 요일은 아직 돋지 않은 잎.
+ * 지난 요일은 다 자란 숲색 잎, 오늘은 새잎 연두, 남은 요일은 아직 돋지 않은 잎.
  */
 export default function WeekBranch({ date, className }: WeekBranchProps) {
   const today = useMemo(() => date ?? new Date(), [date]);
@@ -72,8 +72,8 @@ export default function WeekBranch({ date, className }: WeekBranchProps) {
         <motion.path
           d={STEM}
           fill="none"
-          stroke="var(--color-walnut)"
-          strokeWidth={2}
+          stroke="var(--color-bark)"
+          strokeWidth={2.5}
           strokeLinecap="round"
           initial={false}
           animate={{ pathLength: grown ? 1 : 0 }}

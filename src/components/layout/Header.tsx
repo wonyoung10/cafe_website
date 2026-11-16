@@ -10,14 +10,14 @@ import { cn } from '@/utils/cn';
 function desktopLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
     'relative inline-flex h-11 items-center px-1 text-[0.9375rem] font-semibold transition-colors duration-200',
-    'after:absolute after:inset-x-1 after:bottom-1.5 after:h-0.5 after:origin-left after:rounded-full after:bg-sage after:transition-transform after:duration-300 after:ease-[var(--ease-leaf)]',
+    'after:absolute after:bottom-1 after:left-1/2 after:h-1.5 after:w-4 after:-translate-x-1/2 after:rounded-[0.75rem_0.125rem] after:bg-sprout after:transition-transform after:duration-300 after:ease-[var(--ease-leaf)]',
     isActive ? 'text-forest after:scale-x-100' : 'text-ink-soft after:scale-x-0 hover:text-forest hover:after:scale-x-100',
   );
 }
 
 function mobileLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
-    'flex h-14 items-center justify-between rounded-2xl px-4 font-serif text-xl font-bold transition-colors',
+    'flex h-14 items-center justify-between rounded-leaf px-4 font-serif text-xl font-bold transition-colors',
     isActive ? 'bg-sage-soft text-forest' : 'text-ink hover:bg-cream',
   );
 }
@@ -80,7 +80,7 @@ export default function Header() {
 
         <button
           type="button"
-          className="-mr-2 grid size-11 place-items-center rounded-full text-forest hover:bg-cream md:hidden"
+          className="-mr-2 grid size-11 place-items-center rounded-leaf-sm text-forest hover:bg-cream md:hidden"
           aria-expanded={isMenuOpen}
           aria-controls={panelId}
           aria-label={isMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
