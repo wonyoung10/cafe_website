@@ -74,7 +74,7 @@ export const NAV_ITEMS = [
 - `RootLayout`: `SkipLink` → `Header` → `<main id="main"><Outlet/></main>` → `Footer` + `ScrollToTop`
 - `ScrollToTop`: `useLocation()`의 `pathname` 변경 시 `window.scrollTo(0,0)`, `hash`가 있으면 해당 id로 `scrollIntoView`. 쿼리만 바뀐 경우(메뉴 필터)는 스크롤 유지.
 - `StorePage`는 `lazy(() => import('@/pages/StorePage'))` + `Suspense fallback={<PageLoader/>}` → three/R3F/drei가 별도 청크로 분리.
-- SPA fallback: `vite preview`/dev는 기본 지원, 배포용 `vercel.json` rewrites, `public/_redirects`(`/* /index.html 200`).
+- SPA fallback: `vite preview`/dev는 기본 지원, 배포용 `vercel.json` rewrites(`/assets/`·`/images/` 제외), `public/_redirects`(`/* /index.html 200`). Vercel 배포 설정과 절차는 README의 "Vercel 배포" 참고.
 
 ## 4. 컴포넌트 구조
 
