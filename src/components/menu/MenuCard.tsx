@@ -4,7 +4,7 @@ import TemperatureBadges from '@/components/menu/TemperatureBadges';
 import { MENU_CATEGORIES } from '@/data/menu';
 import type { MenuItem } from '@/types/menu';
 import { cn } from '@/utils/cn';
-import type { LeadLayout } from '@/utils/menu';
+import { formatPrice, type LeadLayout } from '@/utils/menu';
 
 interface MenuCardProps {
   item: MenuItem;
@@ -26,6 +26,18 @@ const LEAD_LAYOUT: Record<LeadLayout, { card: string; image: string }> = {
   full: { card: 'md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]', image: 'aspect-[4/3] md:aspect-auto md:h-full md:min-h-80' },
 };
 
+/** 온도 배지(왼쪽)와 가격(오른쪽)을 한 줄에 둔다. 디저트는 가격만. */
+function PriceRow({ item, temperatures, large = false }: { item: MenuItem; temperatures: MenuItem['temperatures']; large?: boolean }) {
+  return (
+    <div className={cn('flex flex-wrap items-center justify-between gap-x-3 gap-y-2', large ? 'mt-6' : 'mt-4')}>
+      <TemperatureBadges temperatures={temperatures} className="" />
+      <p className={cn('ml-auto font-semibold text-forest tabular-nums', large ? 'font-serif text-xl' : 'text-base')}>
+        <data value={item.price}>{formatPrice(item.price)}</data>
+      </p>
+    </div>
+  );
+}
+
 function MenuCard({ item, variant = 'default', showCategory = true, leadLayout = 'full', className }: MenuCardProps) {
   const category = MENU_CATEGORIES.find(({ id }) => id === item.category);
   const temperatures = item.category === 'dessert' ? [] : item.temperatures;
@@ -44,7 +56,7 @@ function MenuCard({ item, variant = 'default', showCategory = true, leadLayout =
           <h3 className="font-serif text-2xl leading-snug font-bold text-forest md:text-[1.75rem]">{item.name}</h3>
           <p className="mt-1 text-sm text-ink-soft" lang="en">{item.nameEn}</p>
           <p className="mt-5 max-w-sm leading-relaxed text-ink-soft">{item.description}</p>
-          <TemperatureBadges temperatures={temperatures} />
+          <PriceRow item={item} temperatures={temperatures} large />
         </div>
       </article>
     );
@@ -63,7 +75,7 @@ function MenuCard({ item, variant = 'default', showCategory = true, leadLayout =
         <h3 className="text-lg leading-snug font-semibold text-forest">{item.name}</h3>
         <p className="mt-0.5 text-xs text-ink-soft" lang="en">{item.nameEn}</p>
         <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-ink-soft">{item.description}</p>
-        <TemperatureBadges temperatures={temperatures} />
+        <PriceRow item={item} temperatures={temperatures} />
       </div>
     </article>
   );

@@ -13,6 +13,8 @@ export interface MenuItem {
   description: string;
   /** 제공 온도. 디저트는 빈 배열. */
   temperatures: readonly Temperature[];
+  /** 판매가(원, 부가세 포함). HOT/ICE 같은 가격. */
+  price: number;
   image: string;
   /** 홈 대표 메뉴 노출 여부 (정확히 4개) */
   featured?: boolean;

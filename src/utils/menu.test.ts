@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { MENU_CATEGORIES, MENU_ITEMS } from '@/data/menu';
-import { countByCategory, filterMenuItems, getCategoryItems, getFeaturedItems, getLeadLayout, parseMenuFilter } from '@/utils/menu';
+import { countByCategory, filterMenuItems, formatPrice, getCategoryItems, getFeaturedItems, getLeadLayout, parseMenuFilter } from '@/utils/menu';
 
 describe('menu data', () => {
   it('과제 요구사항의 23개 메뉴를 모두 포함한다', () => {
@@ -17,8 +17,17 @@ describe('menu data', () => {
     for (const item of MENU_ITEMS) expect(item.image).toBe(`/images/menu/${item.id}.webp`);
   });
 
-  it('가격 정보를 포함하지 않는다 (과제 범위 제한)', () => {
-    for (const item of MENU_ITEMS) expect(item).not.toHaveProperty('price');
+  it('모든 메뉴에 100원 단위의 가격이 있다', () => {
+    for (const item of MENU_ITEMS) {
+      expect(item.price).toBeGreaterThanOrEqual(3000);
+      expect(item.price).toBeLessThanOrEqual(8000);
+      expect(item.price % 100).toBe(0);
+    }
+  });
+
+  it('가격을 원 단위로 표시한다', () => {
+    expect(formatPrice(4800)).toBe('4,800원');
+    expect(formatPrice(12000)).toBe('12,000원');
   });
 
   it('디저트는 온도 정보가 없고 음료는 HOT/ICE 중 하나 이상이다', () => {

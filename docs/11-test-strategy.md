@@ -39,7 +39,7 @@ npm 스크립트: `typecheck`, `lint`, `test`, `test:watch`, `test:e2e`, `build`
 
 - `filterMenuItems`: all=23, coffee=8, non-coffee=6, tea=4, dessert=5
 - `parseMenuFilter`: 유효값/null/잘못된 값→'all'
-- 데이터 무결성: id 고유, image 경로 `/images/menu/{id}.webp`, featured 정확히 4개, 가격 필드 없음
+- 데이터 무결성: id 고유, image 경로 `/images/menu/{id}.webp`, featured 정확히 4개, 모든 메뉴에 3,000~8,000원·100원 단위 가격
 - E2E: 필터 클릭 후 카드 수, `aria-pressed`, URL 쿼리
 
 ## 5. Three.js 인터랙션 테스트

@@ -18,6 +18,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'coffee',
     description: '짧고 진하게 추출한 한 잔. 묵직한 바디와 고소한 크레마를 그대로 느껴 보세요.',
     temperatures: ['hot'],
+    price: 4000,
     image: img('espresso'),
   },
   {
@@ -27,6 +28,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'coffee',
     description: '에스프레소에 물을 더해 깔끔하게. 하루 어느 때나 편안한 기본의 맛입니다.',
     temperatures: ['hot', 'ice'],
+    price: 4800,
     image: img('americano'),
     featured: true,
   },
@@ -37,6 +39,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'coffee',
     description: '에스프레소와 부드럽게 데운 우유의 조화. 잎사귀 라떼아트로 건네 드립니다.',
     temperatures: ['hot', 'ice'],
+    price: 5300,
     image: img('cafe-latte'),
     lead: true,
     featured: true,
@@ -48,6 +51,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'coffee',
     description: '풍성한 우유 거품 아래 진한 에스프레소. 시나몬 향을 살짝 더했습니다.',
     temperatures: ['hot'],
+    price: 5300,
     image: img('cappuccino'),
   },
   {
@@ -57,6 +61,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'coffee',
     description: '은은한 바닐라 향이 감도는 달콤한 라떼. 지친 오후에 잘 어울립니다.',
     temperatures: ['hot', 'ice'],
+    price: 5800,
     image: img('vanilla-latte'),
   },
   {
@@ -66,6 +71,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'coffee',
     description: '우유 위에 에스프레소를 얹고 카라멜 소스로 마무리한 층층의 단맛.',
     temperatures: ['hot', 'ice'],
+    price: 6000,
     image: img('caramel-macchiato'),
   },
   {
@@ -75,6 +81,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'coffee',
     description: '쌉싸름한 초콜릿과 에스프레소, 휘핑크림이 어우러진 포근한 한 잔.',
     temperatures: ['hot', 'ice'],
+    price: 6000,
     image: img('cafe-mocha'),
   },
   {
@@ -84,6 +91,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'coffee',
     description: '찬물로 오랜 시간 천천히 우려낸 커피. 산뜻하고 깨끗한 끝맛이 특징입니다.',
     temperatures: ['ice'],
+    price: 5500,
     image: img('cold-brew'),
   },
   // Non-Coffee
@@ -94,6 +102,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'non-coffee',
     description: '진한 초콜릿을 따뜻한 우유에 녹여 만든, 달콤하고 깊은 맛의 라떼.',
     temperatures: ['hot', 'ice'],
+    price: 5800,
     image: img('chocolate-latte'),
   },
   {
@@ -103,6 +112,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'non-coffee',
     description: '곱게 갈은 말차를 직접 풀어낸 초록빛 라떼. 쌉싸름함 뒤에 고소함이 남습니다.',
     temperatures: ['hot', 'ice'],
+    price: 6000,
     image: img('matcha-latte'),
     lead: true,
     featured: true,
@@ -114,6 +124,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'non-coffee',
     description: '구운 고구마를 곱게 갈아 넣은 든든하고 달큰한 라떼.',
     temperatures: ['hot', 'ice'],
+    price: 6000,
     image: img('sweet-potato-latte'),
   },
   {
@@ -123,6 +134,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'non-coffee',
     description: '홍차를 진하게 우려 우유와 섞은 부드러운 밀크티. 은은한 단맛이 매력입니다.',
     temperatures: ['hot', 'ice'],
+    price: 6000,
     image: img('milk-tea'),
   },
   {
@@ -132,6 +144,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'non-coffee',
     description: '직접 담근 레몬청과 탄산수로 만든 상큼한 에이드.',
     temperatures: ['ice'],
+    price: 6000,
     image: img('lemonade'),
   },
   {
@@ -141,6 +154,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'non-coffee',
     description: '쌉싸름하고 상큼한 자몽청에 탄산을 더한 청량한 한 잔.',
     temperatures: ['ice'],
+    price: 6500,
     image: img('grapefruit-ade'),
   },
   // Tea
@@ -151,6 +165,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'tea',
     description: '베르가못 향이 은은하게 퍼지는 클래식 홍차.',
     temperatures: ['hot', 'ice'],
+    price: 5000,
     image: img('earl-grey'),
   },
   {
@@ -160,6 +175,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'tea',
     description: '사과를 닮은 꽃향의 허브티. 마음을 차분하게 가라앉혀 줍니다.',
     temperatures: ['hot'],
+    price: 5000,
     image: img('chamomile'),
   },
   {
@@ -169,6 +185,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'tea',
     description: '시원한 박하 향이 입안을 맑게 하는 허브티.',
     temperatures: ['hot', 'ice'],
+    price: 5000,
     image: img('peppermint'),
   },
   {
@@ -178,6 +195,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'tea',
     description: '향긋한 유자청을 따뜻한 물에 풀어낸, 새콤달콤한 우리 차.',
     temperatures: ['hot', 'ice'],
+    price: 5500,
     image: img('yuja-tea'),
     lead: true,
   },
@@ -189,6 +207,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'dessert',
     description: '버터 향 가득한 결이 바삭하게 부서지는 클래식 크루아상.',
     temperatures: [],
+    price: 4500,
     image: img('croissant'),
     lead: true,
     featured: true,
@@ -200,6 +219,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'dessert',
     description: '태운 버터와 아몬드 가루로 구워 겉은 바삭, 속은 촉촉한 구움과자.',
     temperatures: [],
+    price: 3500,
     image: img('financier'),
   },
   {
@@ -209,6 +229,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'dessert',
     description: '투박하게 부서지는 담백한 스콘. 크림과 잼을 곁들여 드립니다.',
     temperatures: [],
+    price: 4000,
     image: img('scone'),
   },
   {
@@ -218,6 +239,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'dessert',
     description: '겉면을 진하게 구워 낸 바스크 스타일의 꾸덕한 치즈케이크.',
     temperatures: [],
+    price: 7000,
     image: img('cheesecake'),
   },
   {
@@ -227,6 +249,7 @@ export const MENU_ITEMS: readonly MenuItem[] = [
     category: 'dessert',
     description: '큼직한 초콜릿 청크가 박힌 쫀득한 쿠키.',
     temperatures: [],
+    price: 3500,
     image: img('cookie'),
   },
 ];
