@@ -57,3 +57,10 @@ export function getLeadLayout(restCount: number, columns = 3): LeadLayout {
   const match = LEAD_SLOTS.find(([, slots]) => (slots + restCount) % columns === 0);
   return match?.[0] ?? 'full';
 }
+
+const priceFormatter = new Intl.NumberFormat('ko-KR');
+
+/** 4800 → "4,800원" */
+export function formatPrice(won: number): string {
+  return `${priceFormatter.format(won)}원`;
+}

@@ -80,7 +80,7 @@ flowchart LR
 3. **Tea** 버튼 클릭 → URL `/menu?category=tea`, 카드 4개, 버튼 `aria-pressed=true`
 4. 새로고침 → Tea 필터 유지
 5. 뒤로가기 → 이전 필터 상태(전체)로 복귀
-6. 카드에서 HOT/ICE 배지로 제공 온도 확인 (가격 없음)
+6. 카드에서 HOT/ICE 배지로 제공 온도와 판매가 확인
 
 ## 5. 3D 매장 탐색 시나리오
 
