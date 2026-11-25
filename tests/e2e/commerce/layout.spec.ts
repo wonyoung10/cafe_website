@@ -138,7 +138,7 @@ for (const viewport of VIEWPORTS) {
       await page.getByRole('button', { name: '주문하기', exact: true }).click();
       await expect(page.getByRole('alert').first()).toBeVisible();
       await measure(page, failures, `${viewport.width}px /checkout (오류)`);
-      await page.getByLabel('테이크아웃', { exact: true }).check();
+      await page.getByLabel('Take Out', { exact: true }).check();
       await page.getByLabel('온라인 결제', { exact: true }).check();
       await measure(page, failures, `${viewport.width}px /checkout (결제수단)`);
       await page.getByLabel('나이테카드', { exact: true }).check();

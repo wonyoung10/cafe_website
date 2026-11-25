@@ -65,10 +65,10 @@ async function authorize() {
 }
 
 const combinations: [ReceiveMethod, string, PaymentMethod, string, string][] = [
-  ['takeout', '테이크아웃', 'onsite', '현장 결제', '현장에서 결제 예정'],
-  ['takeout', '테이크아웃', 'online', '온라인 결제', '모의 결제 완료'],
-  ['dine-in', '매장에서', 'onsite', '현장 결제', '현장에서 결제 예정'],
-  ['dine-in', '매장에서', 'online', '온라인 결제', '모의 결제 완료'],
+  ['takeout', 'Take Out', 'onsite', '현장 결제', '현장에서 결제 예정'],
+  ['takeout', 'Take Out', 'online', '온라인 결제', '모의 결제 완료'],
+  ['dine-in', 'Take In', 'onsite', '현장 결제', '현장에서 결제 예정'],
+  ['dine-in', 'Take In', 'online', '온라인 결제', '모의 결제 완료'],
 ];
 
 it.each(combinations)('SH-04–07 places one %s (%s) / %s order across double clicks', async (r, receive, p, payment, status) => {
@@ -135,7 +135,7 @@ it('SH-04/05 requires both radio groups and focuses the first invalid choice', a
   const api = await checkout();
   const submit = screen.getByRole('button', { name: '주문하기' });
   await userEvent.click(submit);
-  const receive = screen.getByRole('radio', { name: '테이크아웃' });
+  const receive = screen.getByRole('radio', { name: 'Take Out' });
   expect(receive).toHaveFocus();
   expect(receive).toHaveAttribute('aria-invalid', 'true');
   expect(receive).toHaveAccessibleDescription('받는 방법을 선택해 주세요.');
@@ -149,7 +149,7 @@ it('SH-04/05 requires both radio groups and focuses the first invalid choice', a
 
 it('SH-09 requires a payment instrument for online payment', async () => {
   const api = await checkout();
-  await userEvent.click(screen.getByRole('radio', { name: '테이크아웃' }));
+  await userEvent.click(screen.getByRole('radio', { name: 'Take Out' }));
   await userEvent.click(screen.getByRole('radio', { name: '온라인 결제' }));
   await userEvent.click(opener());
   const first = screen.getByRole('radio', { name: '나이테카드' });
@@ -162,7 +162,7 @@ it('SH-09 requires a payment instrument for online payment', async () => {
 it.each(['취소', 'Escape'])('SH-07/10 closes the payment window with %s without placing an order', async how => {
   const api = await checkout();
   const spy = vi.spyOn(api.orders, 'place');
-  await choose('테이크아웃', '온라인 결제');
+  await choose('Take Out', '온라인 결제');
   await userEvent.click(opener());
   if (how === '취소') await press('취소');
   else await userEvent.keyboard('{Escape}');
@@ -176,7 +176,7 @@ it.each(['취소', 'Escape'])('SH-07/10 closes the payment window with %s withou
 it.each([['낙엽카드', '한도를 넘었어요'], ['잎맥페이', '잔액이 부족해요']])('SH-11 declines %s and returns to the instrument choice', async (name, title) => {
   const api = await checkout();
   const spy = vi.spyOn(api.orders, 'place');
-  await choose('테이크아웃', '온라인 결제', name);
+  await choose('Take Out', '온라인 결제', name);
   await authorize();
   expect(await screen.findByRole('heading', { name: title })).toHaveFocus();
   expect(spy).not.toHaveBeenCalled();
@@ -191,7 +191,7 @@ it.each([['낙엽카드', '한도를 넘었어요'], ['잎맥페이', '잔액이
 
 it('SH-11 lets the member refuse in the app and try again in the same window', async () => {
   const api = await checkout();
-  await choose('테이크아웃', '온라인 결제');
+  await choose('Take Out', '온라인 결제');
   await userEvent.click(opener());
   await press('인증 요청하기');
   await press('거절하기');
@@ -206,7 +206,7 @@ it('SH-11 lets the member refuse in the app and try again in the same window', a
 it('SH-11 stops when app authorization times out', async () => {
   paymentTiming.verify = 0;
   const api = await checkout();
-  await choose('테이크아웃', '온라인 결제');
+  await choose('Take Out', '온라인 결제');
   await userEvent.click(opener());
   await press('인증 요청하기');
   expect(await screen.findByRole('heading', { name: '인증 시간이 지났어요' })).toBeVisible();
@@ -216,7 +216,7 @@ it('SH-11 stops when app authorization times out', async () => {
 it('SH-07/11 keeps the cart and choices on failure, permits retry, and opens the receipt even if cart refresh fails', async () => {
   const api = await checkout();
   vi.spyOn(api.orders, 'place').mockRejectedValueOnce(new Error('network'));
-  await choose('매장에서', '온라인 결제');
+  await choose('Take In', '온라인 결제');
   await authorize();
   expect(await screen.findByRole('heading', { name: '승인되지 않았어요' })).toBeVisible();
   expect(await api.cart.list()).toEqual([item]);
@@ -238,7 +238,7 @@ it('SH-12 treats a lost response as approved when the order exists', async () =>
   const api = await checkout();
   const place = api.orders.place;
   vi.spyOn(api.orders, 'place').mockImplementationOnce(async (r, p) => { await place(r, p); throw new Error('network'); });
-  await choose('테이크아웃', '온라인 결제');
+  await choose('Take Out', '온라인 결제');
   await authorize();
   expect(await screen.findByText('모의 결제 완료')).toBeVisible();
   const [order] = await api.orders.list();
@@ -251,7 +251,7 @@ it('SH-12 asks to check again when the result cannot be confirmed', async () => 
   const { place, list } = api.orders;
   vi.spyOn(api.orders, 'place').mockImplementationOnce(async (r, p) => { await place(r, p); throw new Error('network'); });
   const orders = vi.spyOn(api.orders, 'list').mockImplementationOnce(list).mockRejectedValueOnce(new Error('network'));
-  await choose('테이크아웃', '온라인 결제');
+  await choose('Take Out', '온라인 결제');
   await authorize();
   expect(await screen.findByRole('heading', { name: '승인 결과를 확인하지 못했어요' })).toBeVisible();
   expect(screen.getByRole('link', { name: '주문 내역 보기' })).toHaveAttribute('href', '/orders');
@@ -264,7 +264,7 @@ it('SH-12 asks to check again when the result cannot be confirmed', async () => 
 it('SH-12 does not charge a cart that changed in another tab', async () => {
   const api = await checkout();
   const spy = vi.spyOn(api.orders, 'place');
-  await choose('테이크아웃', '온라인 결제');
+  await choose('Take Out', '온라인 결제');
   await userEvent.click(opener());
   await api.cart.add({ menuId: 'cookie', temperature: null, quantity: 1 });
   await press('인증 요청하기');
@@ -277,7 +277,7 @@ it('SH-12 does not charge a cart that changed in another tab', async () => {
 
 it('SH-12 reports a cart that another tab already paid for', async () => {
   const api = await checkout();
-  await choose('테이크아웃', '온라인 결제');
+  await choose('Take Out', '온라인 결제');
   await userEvent.click(opener());
   await api.orders.place('takeout', 'onsite');
   await press('인증 요청하기');
@@ -305,12 +305,12 @@ it.each([true, false])('SH-12 settles an interrupted payment after a reload (ord
 
 it('SH-12 restores choices after a reload without reopening the payment window', async () => {
   const api = await checkout();
-  await choose('매장에서', '온라인 결제', '가지카드');
+  await choose('Take In', '온라인 결제', '가지카드');
   await userEvent.click(opener());
   document.body.innerHTML = '';
   renderApp('/checkout', { api });
   expect(await screen.findByRole('radio', { name: '가지카드' })).toBeChecked();
-  expect(screen.getByRole('radio', { name: '매장에서' })).toBeChecked();
+  expect(screen.getByRole('radio', { name: 'Take In' })).toBeChecked();
   expect(screen.queryByRole('dialog')).toBeNull();
 });
 
@@ -320,7 +320,7 @@ it('SH-09 offers installments only for credit cards from 50,000 won', async () =
   await api.cart.add({ ...item, quantity: 11 });
   renderApp('/checkout', { api });
   await screen.findByRole('group', { name: '받는 방법' });
-  await choose('테이크아웃', '온라인 결제');
+  await choose('Take Out', '온라인 결제');
   await userEvent.selectOptions(screen.getByRole('combobox', { name: '할부' }), '3개월 할부');
   await userEvent.click(screen.getByRole('radio', { name: '가지카드' }));
   expect(screen.queryByRole('combobox')).toBeNull();
@@ -379,7 +379,7 @@ async function checkoutWithBack() {
 
 it('SH-12 closes the payment window on Back, and the receipt goes Back to the cart', async () => {
   const api = await checkoutWithBack();
-  await choose('테이크아웃', '온라인 결제');
+  await choose('Take Out', '온라인 결제');
   await userEvent.click(opener());
   await press('인증 요청하기');
   await press('뒤로 가기');
@@ -398,7 +398,7 @@ it('SH-12 keeps showing the approval when Back is pressed while it is pending', 
   let release!: () => void;
   const paused = new Promise<void>(resolve => { release = resolve; });
   vi.spyOn(api.orders, 'place').mockImplementation(async (r, p) => { await paused; return place(r, p); });
-  await choose('테이크아웃', '온라인 결제');
+  await choose('Take Out', '온라인 결제');
   await authorize();
   await press('뒤로 가기');
   await press('뒤로 가기');
@@ -414,7 +414,7 @@ it('SH-07 replaces checkout with the receipt so Back returns to the cart', async
   await api.cart.add(item);
   render(<MemoryRouter initialEntries={['/cart', '/checkout']}><AppRoutes api={api} /><Back /></MemoryRouter>);
   await screen.findByRole('group', { name: '받는 방법' });
-  await choose('테이크아웃', '현장 결제');
+  await choose('Take Out', '현장 결제');
   await userEvent.click(screen.getByRole('button', { name: '주문하기' }));
   expect(await screen.findByText('현장에서 결제 예정')).toBeVisible();
   await userEvent.click(screen.getByRole('button', { name: '뒤로 가기' }));

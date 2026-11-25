@@ -145,7 +145,7 @@ export async function expectCartCount(page: Page, count: number) {
 
 export type Receive = 'takeout' | 'dine-in';
 export type Pay = 'onsite' | 'online';
-export const receiveLabel: Record<Receive, string> = { takeout: '테이크아웃', 'dine-in': '매장에서' };
+export const receiveLabel: Record<Receive, string> = { takeout: 'Take Out', 'dine-in': 'Take In' };
 export const payLabel: Record<Pay, string> = { onsite: '현장 결제', online: '온라인 결제' };
 
 /** 온라인 결제의 결제 버튼 ('14,100원 결제하기') */
