@@ -23,11 +23,11 @@ describe('AppRoutes', () => {
     expect(screen.getByRole('heading', { level: 1, name: /길을 잃은 잎사귀/ })).toBeInTheDocument();
   });
 
-  it('헤더에 메뉴소개 · 매장 · 오시는 길 순서로 내비게이션이 있다', () => {
+  it('헤더에 메뉴소개 · 매장 · 오시는 길 · 리뷰 순서로 내비게이션이 있다', () => {
     renderApp('/');
     const nav = screen.getByRole('navigation', { name: '주 메뉴' });
     const links = within(nav).getAllByRole('link').map((link) => link.textContent);
-    expect(links).toEqual(['메뉴소개', '매장', '오시는 길']);
+    expect(links).toEqual(['메뉴소개', '매장', '오시는 길', '리뷰']);
   });
 
   it('현재 경로의 내비게이션 링크에 aria-current="page"를 표시한다', () => {

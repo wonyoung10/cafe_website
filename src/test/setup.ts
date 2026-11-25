@@ -1,3 +1,5 @@
+/// <reference types="node" />
+import { webcrypto } from 'node:crypto';
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
@@ -7,6 +9,7 @@ afterEach(() => {
 });
 
 // jsdom 미구현 API 보강
+if (!crypto.subtle) Object.defineProperty(crypto, 'subtle', { value: webcrypto.subtle });
 if (!window.matchMedia) {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
