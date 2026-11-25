@@ -142,7 +142,7 @@ for (const viewport of VIEWPORTS) {
       await page.getByLabel('온라인 결제', { exact: true }).check();
       await measure(page, failures, `${viewport.width}px /checkout (결제수단)`);
       await page.getByLabel('나이테카드', { exact: true }).check();
-      await expect(page.getByLabel('할부', { exact: true })).toBeVisible();
+      await expect(page.getByRole('combobox', { name: '할부' })).toBeVisible();
       await payButton(page).click();
       const dialog = page.getByRole('dialog', { name: '하루의 잎 결제' });
       const dialogFits = async (step: string) => {
