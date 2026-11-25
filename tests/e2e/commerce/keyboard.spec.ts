@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-import { PASSWORD, expect, menuCard, openAccountMenu, tabTo, test, uid } from './helpers';
+import { ORDER_URL, ORDER_WAIT, PASSWORD, expect, menuCard, openAccountMenu, payButton, tabTo, test, uid } from './helpers';
 
 // 마우스를 쓰지 않고(클릭 없음) Tab·Shift+Tab·방향키·Space·Enter·Esc 로만 가입부터 리뷰까지 간다.
 // 각 단계의 출발은 goto 이거나 앞 단계의 키 입력이다. tabTo 는 Tab 으로 실제로 닿을 수 있는지 증명한다.
@@ -62,16 +62,26 @@ test('키보드만으로 가입 → 담기 → 결제(모의) → 리뷰 쓰기�
   await tabTo(page, page.getByLabel('현장 결제', { exact: true }));
   await page.keyboard.press('ArrowRight');
   await expect(page.getByLabel('온라인 결제', { exact: true })).toBeChecked();
-  await tabTo(page, page.getByRole('button', { name: '모의 결제하기', exact: true }));
+  await tabTo(page, page.getByLabel('나이테카드', { exact: true }));
+  await page.keyboard.press('Space');
+  await expect(page.getByLabel('나이테카드', { exact: true })).toBeChecked();
+  await tabTo(page, payButton(page));
   await page.keyboard.press('Enter');
-  const dialog = page.getByRole('dialog', { name: '모의 결제' });
-  await expect(dialog).toBeVisible();
-  // 창이 열리면 초점이 창 안으로 들어온다
+  const dialog = page.getByRole('dialog', { name: '하루의 잎 결제' });
+  // 창이 열리고 단계가 바뀔 때마다 초점이 그 단계의 제목으로 온다
+  await expect(dialog.getByRole('heading', { name: '결제 내용 확인' })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('Tab');
   await expect(dialog.getByRole('button', { name: '취소', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
-  await expect(dialog.getByRole('button', { name: '모의 결제 승인', exact: true })).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/orders\/[^/]+$/);
+  await expect(dialog.getByRole('heading', { name: '나이테카드 앱 인증' })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Tab');
+  await expect(dialog.getByRole('button', { name: '인증하고 결제하기', exact: true })).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(dialog.getByRole('heading', { name: '결제가 승인됐어요' })).toBeFocused();
+  await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
   await expect(page.getByText('모의 결제 완료').first()).toBeVisible();
 
   // 리뷰 쓰기

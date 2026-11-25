@@ -1,11 +1,14 @@
+import { Check } from 'lucide-react';
 import { useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { ButtonLink } from '@/components/common/Button';
 import CommerceScreen from '@/components/orders/CommerceScreen';
 import OrderData from '@/components/orders/OrderData';
 import OrderSummary from '@/components/orders/OrderSummary';
+import Receipt from '@/components/orders/Receipt';
 import { useAuth, useCommerce } from '@/contexts';
 import type { Order } from '@/types/commerce';
+import { formatPrice } from '@/utils/menu';
 import { paymentLabels, paymentStatusLabels, receiveLabels } from '@/utils/order';
 
 function OrderReviews({ order }: { order: Order }) {
@@ -36,7 +39,29 @@ function OrderReviews({ order }: { order: Order }) {
   );
 }
 
+function focusOnce(node: HTMLHeadingElement | null) {
+  node?.focus({ preventScroll: true });
+}
+
+function Completed({ order }: { order: Order }) {
+  const paid = order.paymentMethod === 'online';
+  return (
+    <section aria-labelledby="completed-heading" className="mb-8 rounded-leaf bg-sage-soft p-5 sm:p-7">
+      <span className="mb-3 grid size-11 place-items-center rounded-leaf-sm bg-sprout text-forest-deep"><Check aria-hidden className="size-6" /></span>
+      <h2 id="completed-heading" ref={focusOnce} tabIndex={-1} className="font-serif text-2xl font-bold text-forest outline-none">
+        {paid ? '결제가 완료됐어요' : '주문이 접수됐어요'}
+      </h2>
+      <p className="mt-1">
+        {paid ? formatPrice(order.total) + '을 승인했어요. ' : '매장에서 ' + formatPrice(order.total) + '을 결제해 주세요. '}
+        {order.receiveMethod === 'takeout' ? '포장해서 준비할게요.' : '매장에서 준비할게요.'}
+      </p>
+    </section>
+  );
+}
+
 export default function OrderDetailPage() {
+  const location = useLocation();
+  const completed = Boolean(location.state && typeof location.state === 'object' && 'completed' in location.state);
   const { api } = useCommerce();
   const { user } = useAuth();
   const { orderId = '' } = useParams();
@@ -48,6 +73,7 @@ export default function OrderDetailPage() {
           <>
             {order ? (
               <>
+                {completed && <Completed order={order} />}
                 <p className="mb-4 break-all font-semibold text-forest">주문번호 {order.orderNo}</p>
                 <OrderSummary lines={order.lines} total={order.total} />
                 <dl className="mt-5 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2">
@@ -55,6 +81,7 @@ export default function OrderDetailPage() {
                   <dt className="text-ink-soft">결제 방법</dt><dd>{paymentLabels[order.paymentMethod]}</dd>
                   <dt className="text-ink-soft">결제 상태</dt><dd>{paymentStatusLabels[order.paymentStatus]}</dd>
                 </dl>
+                {order.paymentMethod === 'online' && <Receipt order={order} />}
                 <OrderReviews order={order} />
               </>
             ) : <p className="mb-4">주문을 찾을 수 없어요.</p>}

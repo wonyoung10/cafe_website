@@ -4,9 +4,7 @@ import CommerceScreen from '@/components/orders/CommerceScreen';
 import OrderData from '@/components/orders/OrderData';
 import { useAuth, useCommerce } from '@/contexts';
 import { formatPrice } from '@/utils/menu';
-import { paymentStatusLabels } from '@/utils/order';
-
-const dateFormat = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Asia/Seoul' });
+import { formatDateTime, paymentStatusLabels } from '@/utils/order';
 
 export default function OrdersPage() {
   const { api } = useCommerce();
@@ -19,7 +17,7 @@ export default function OrdersPage() {
             {orders.toSorted((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)).map(order => (
               <li key={order.id}>
                 <Link to={'/orders/' + encodeURIComponent(order.id)} className="block rounded-leaf-sm px-3 py-5 hover:bg-cream">
-                  <time dateTime={order.createdAt} className="text-sm text-ink-soft">{dateFormat.format(new Date(order.createdAt))}</time>
+                  <time dateTime={order.createdAt} className="text-sm text-ink-soft">{formatDateTime(order.createdAt)}</time>
                   <p className="break-all font-serif text-xl font-bold text-forest">주문번호 {order.orderNo}</p>
                   <p>{paymentStatusLabels[order.paymentStatus]} · {formatPrice(order.total)}</p>
                 </Link>

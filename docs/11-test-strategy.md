@@ -101,7 +101,7 @@ E2E 공통 fixture에서 `page.on('console', type==='error')`와 `pageerror`를 
 |---|---|
 | AU-01~07 | `auth.spec.ts` (+ `keyboard.spec.ts`의 가입) |
 | SH-01~03 | `cart.spec.ts` |
-| SH-04~08 | `checkout.spec.ts` |
+| SH-04~13 | `checkout.spec.ts` (응답 유실·끊긴 결제 복구는 단위 테스트 `CheckoutPage.test.tsx`) |
 | RV-01~09 | `reviews.spec.ts` |
 | 직접 주소·리디렉션·문서 제목 | `access.spec.ts` |
 | 375px·768px 가로 넘침, 머리글 | `layout.spec.ts` |

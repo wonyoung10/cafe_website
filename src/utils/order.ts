@@ -22,3 +22,9 @@ export function lineKey(line: Pick<CartItem, 'menuId' | 'temperature'>) {
 export function lineName(name: string, temperature: CartItem['temperature']) {
   return temperature ? name + ' ' + temperature.toUpperCase() : name;
 }
+
+const dateTimeFormat = new Intl.DateTimeFormat('ko-KR', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Asia/Seoul' });
+
+export function formatDateTime(iso: string) {
+  return dateTimeFormat.format(new Date(iso));
+}

@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 import type { Page } from '@playwright/test';
 import {
-  PASSWORD, addToCart, checkout, expect, expectCartCount, logIn, logOut, orderIdFromUrl, payLabel, receiveLabel,
+  ORDER_URL, ORDER_WAIT, PASSWORD, addToCart, authorizePayment, checkout, expect, expectCartCount, logIn, logOut, orderIdFromUrl, payButton, payLabel, receiveLabel,
   signUp, test, uid, type Pay, type Receive,
 } from './helpers';
 
@@ -41,24 +41,36 @@ test.describe('받는 방법 × 결제 방법 네 조합 (SH-04, SH-05, SH-06, S
 
         await page.getByLabel(receiveLabel[receive], { exact: true }).check();
         await page.getByLabel(payLabel[pay], { exact: true }).check();
-        const submit = page.getByRole('button', { name: pay === 'online' ? '모의 결제하기' : '주문하기', exact: true });
-        await submit.click();
-
         if (pay === 'online') {
+          await page.getByLabel('나이테카드', { exact: true }).check();
+          await payButton(page).click();
           // 승인 전에는 주문이 없다
-          const dialog = page.getByRole('dialog', { name: '모의 결제' });
-          await expect(dialog).toBeVisible();
+          const dialog = page.getByRole('dialog', { name: '하루의 잎 결제' });
           await expect(dialog).toContainText('결제 금액 14,100원');
+          await expect(dialog).toContainText('아메리카노 ICE 외 1건');
           await expect(page).toHaveURL(/\/checkout$/);
-          await dialog.getByRole('button', { name: '모의 결제 승인', exact: true }).click();
-        }
+          await authorizePayment(page);
+          await expect(dialog.getByRole('heading', { name: '승인을 요청하고 있어요' })).toBeFocused();
+          await expect(dialog.getByRole('button')).toHaveCount(0);
+          await expect(dialog.getByRole('heading', { name: '결제가 승인됐어요' })).toBeVisible();
+        } else await page.getByRole('button', { name: '주문하기', exact: true }).click();
 
-        await expect(page).toHaveURL(/\/orders\/[^/]+$/);
+        await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
         await expect(page.getByRole('heading', { level: 1, name: '주문 상세', exact: true })).toBeVisible();
         await expect(page.getByText(/^주문번호 \d{8}-\d{6}$/)).toBeVisible();
         await expect(definition(page, '받는 방법')).toHaveText(RECEIVE_LABEL[receive]);
         await expect(definition(page, '결제 방법')).toHaveText(payLabel[pay]);
         await expect(definition(page, '결제 상태')).toHaveText(STATUS_LABEL[pay]);
+        await expect(page.getByRole('heading', { level: 2, name: pay === 'online' ? '결제가 완료됐어요' : '주문이 접수됐어요' })).toBeFocused();
+        const receipt = page.getByRole('region', { name: '영수증' });
+        if (pay === 'online') {
+          await expect(receipt).toContainText('나이테카드');
+          await expect(receipt).toContainText('일시불');
+          await expect(definition(page, '승인 번호')).toHaveText(/^\d{8}$/);
+          await expect(definition(page, '승인 시각')).toContainText('년');
+          await expect(definition(page, '승인 금액')).toHaveText('14,100원');
+          await expect(receipt).toContainText('실제 결제는 이루어지지 않았고');
+        } else await expect(receipt).toHaveCount(0);
         const summary = page.getByRole('region', { name: '주문 요약' });
         await expect(summary).toContainText('아메리카노 ICE');
         await expect(summary).toContainText('4,800원 × 2개');
@@ -110,32 +122,40 @@ test.describe('결제 화면의 입력 검사 (SH-04, SH-05)', () => {
     await signUp(page, uid('emp'));
     await page.goto('/checkout', { waitUntil: 'domcontentloaded' });
     await expect(page.getByText('장바구니가 비어 있어요.')).toBeVisible();
-    await expect(page.getByRole('button', { name: /주문하기|모의 결제하기/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /주문하기|결제하기/ })).toHaveCount(0);
   });
 });
 
-test.describe('모의 결제 창 (SH-06, SH-07)', () => {
-  async function openDialog(page: Page) {
-    await signUp(page, uid('dlg'));
-    await fillCart(page);
-    await page.goto('/checkout', { waitUntil: 'domcontentloaded' });
-    await page.getByLabel('Take Out', { exact: true }).check();
-    await page.getByLabel('온라인 결제', { exact: true }).check();
-    const opener = page.getByRole('button', { name: '모의 결제하기', exact: true });
-    await opener.click();
-    const dialog = page.getByRole('dialog', { name: '모의 결제' });
-    await expect(dialog).toBeVisible();
-    return { dialog, opener };
-  }
+async function fillForm(page: Page, instrument = '나이테카드') {
+  await page.getByLabel('Take Out', { exact: true }).check();
+  await page.getByLabel('온라인 결제', { exact: true }).check();
+  await page.getByLabel(instrument, { exact: true }).check();
+}
 
+async function openDialog(page: Page, instrument?: string) {
+  await signUp(page, uid('dlg'));
+  await fillCart(page);
+  await page.goto('/cart', { waitUntil: 'domcontentloaded' });
+  await page.getByRole('link', { name: '결제하기', exact: true }).click();
+  await fillForm(page, instrument);
+  const opener = payButton(page);
+  await opener.click();
+  const dialog = page.getByRole('dialog', { name: '하루의 잎 결제' });
+  await expect(dialog).toBeVisible();
+  return { dialog, opener };
+}
+
+test.describe('결제창 (SH-06, SH-07, SH-09~12)', () => {
   test('결제 정보를 받는 입력란이 없고 외부 창도 없다', async ({ page }) => {
     const { dialog } = await openDialog(page);
-    expect(await dialog.locator('input, textarea, select, iframe, [contenteditable], [role="textbox"], [role="combobox"]').count()).toBe(0);
-    await expect(dialog.getByRole('button')).toHaveCount(2);
-    await expect(dialog.getByRole('button', { name: '취소', exact: true })).toBeVisible();
-    await expect(dialog.getByRole('button', { name: '모의 결제 승인', exact: true })).toBeVisible();
-    await expect(dialog).toContainText('실제 결제는 이루어지지 않아요');
-    await expect(dialog).not.toContainText(/카드 ?번호|유효기간|CVC|CVV|비밀번호/);
+    for (const step of ['confirm', 'verify']) {
+      expect(await dialog.locator('input, textarea, select, iframe, [contenteditable], [role="textbox"], [role="combobox"]').count(), step).toBe(0);
+      await expect(dialog.getByRole('button')).toHaveCount(2);
+      await expect(dialog).toContainText('실제 결제는 이루어지지 않아요');
+      await expect(dialog).not.toContainText(/카드 ?번호|유효기간|CVC|CVV|비밀번호/);
+      if (step === 'confirm') await dialog.getByRole('button', { name: '인증 요청하기', exact: true }).click();
+    }
+    await expect(dialog.getByRole('timer')).toContainText(/남은 시간 [23]:\d\d/);
     expect(await page.locator('iframe').count()).toBe(0);
   });
 
@@ -148,14 +168,15 @@ test.describe('모의 결제 창 (SH-06, SH-07)', () => {
     await expectCartCount(page, 3);
     // 다시 열어서 승인해도 주문은 한 건이다
     await opener.click();
-    await page.getByRole('dialog').getByRole('button', { name: '모의 결제 승인', exact: true }).click();
-    await expect(page).toHaveURL(/\/orders\/[^/]+$/);
+    await authorizePayment(page);
+    await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
     expect(await ordersListed(page)).toBe(1);
   });
 
   test('취소한 뒤 주문 내역과 장바구니를 확인해도 아무 주문이 없다', async ({ page }) => {
     const { dialog } = await openDialog(page);
     await dialog.getByRole('button', { name: '취소', exact: true }).click();
+    await expect(dialog).toHaveCount(0);
     expect(await ordersListed(page)).toBe(0);
     await expect(page.getByText('아직 주문 내역이 없어요.')).toBeVisible();
     await page.goto('/cart', { waitUntil: 'domcontentloaded' });
@@ -167,6 +188,7 @@ test.describe('모의 결제 창 (SH-06, SH-07)', () => {
     await page.keyboard.press('Escape');
     await expect(dialog).toHaveCount(0);
     await expect(opener).toBeFocused();
+    await expect(page).toHaveURL(/\/checkout$/);
     await expectCartCount(page, 3);
     expect(await ordersListed(page)).toBe(0);
   });
@@ -189,6 +211,90 @@ test.describe('모의 결제 창 (SH-06, SH-07)', () => {
     }
     await expect(dialog).toBeVisible();
   });
+
+  for (const [instrument, title] of [['낙엽카드', '한도를 넘었어요'], ['잎맥페이', '잔액이 부족해요']] as const) {
+    test(`${instrument}로 결제하면 거절되고 다른 수단으로 이어서 결제한다`, async ({ page }) => {
+      const { dialog } = await openDialog(page, instrument);
+      await authorizePayment(page);
+      await expect(dialog.getByRole('heading', { name: title })).toBeFocused();
+      await expect(dialog).toContainText('장바구니는 그대로예요');
+      await dialog.getByRole('button', { name: '다른 결제수단 고르기', exact: true }).click();
+      await expect(dialog).toHaveCount(0);
+      await expect(page.getByLabel('나이테카드', { exact: true })).toBeFocused();
+      await page.getByLabel('이슬페이', { exact: true }).check();
+      await payButton(page).click();
+      await authorizePayment(page);
+      await expect(page.getByRole('region', { name: '영수증' })).toContainText('이슬페이');
+      expect(await ordersListed(page)).toBe(1);
+    });
+  }
+
+  test('앱에서 거절하면 주문이 없고 같은 창에서 다시 시도할 수 있다', async ({ page }) => {
+    const { dialog } = await openDialog(page);
+    await dialog.getByRole('button', { name: '인증 요청하기', exact: true }).click();
+    await dialog.getByRole('button', { name: '거절하기', exact: true }).click();
+    await expect(dialog.getByRole('heading', { name: '인증을 거절했어요' })).toBeFocused();
+    await dialog.getByRole('button', { name: '다시 시도하기', exact: true }).click();
+    await authorizePayment(page);
+    await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
+    expect(await ordersListed(page)).toBe(1);
+  });
+
+  test('뒤로 가기는 결제창만 닫고, 결제 뒤 뒤로 가기는 장바구니로 간다', async ({ page }) => {
+    const { dialog, opener } = await openDialog(page);
+    await page.goBack();
+    await expect(dialog).toHaveCount(0);
+    await expect(page).toHaveURL(/\/checkout$/);
+    await expect(page.getByLabel('나이테카드', { exact: true })).toBeChecked();
+    await opener.click();
+    await authorizePayment(page);
+    await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
+    const orderUrl = page.url();
+    await page.goBack();
+    await expect(page).toHaveURL(/\/cart$/);
+    await expect(page.getByText('장바구니가 비어 있어요.')).toBeVisible();
+    await page.goForward();
+    await expect(page).toHaveURL(orderUrl);
+    // 결제창이 있던 기록으로 앞으로 가도 주문 화면으로 되돌아온다
+    await page.goForward();
+    await expect(page).toHaveURL(orderUrl);
+    expect(await ordersListed(page)).toBe(1);
+  });
+
+  test('승인을 기다리는 동안 Esc·뒤로 가기를 눌러도 결과까지 보여 주고 주문은 한 건이다', async ({ page }) => {
+    const { dialog } = await openDialog(page);
+    await authorizePayment(page);
+    await expect(dialog.getByRole('heading', { name: '승인을 요청하고 있어요' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Escape');
+    await page.evaluate(() => history.back());
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole('heading', { name: '결제가 승인됐어요' })).toBeVisible();
+    await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
+    expect(await ordersListed(page)).toBe(1);
+  });
+
+  test('결제창에서 새로고침하면 창은 닫히고 고른 값은 남으며 주문은 없다', async ({ page }) => {
+    const { dialog } = await openDialog(page, '가지카드');
+    await dialog.getByRole('button', { name: '인증 요청하기', exact: true }).click();
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page.getByLabel('가지카드', { exact: true })).toBeChecked();
+    await expect(dialog).toHaveCount(0);
+    await page.goBack();
+    await expect(page).toHaveURL(/\/cart$/);
+    expect(await ordersListed(page)).toBe(0);
+  });
+
+  test('다른 브라우저에서 연 영수증은 결제수단 이름 없이 같은 승인 번호를 보여 준다', async ({ page }) => {
+    await openDialog(page);
+    await authorizePayment(page);
+    await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
+    const number = await definition(page, '승인 번호').textContent();
+    await page.evaluate(() => localStorage.removeItem('haru-leaf:payment-receipts'));
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(definition(page, '승인 번호')).toHaveText(number ?? '');
+    await expect(definition(page, '결제수단')).toHaveText('온라인 결제');
+  });
 });
 
 test.describe('중복 주문 방지 (SH-07)', () => {
@@ -199,7 +305,7 @@ test.describe('중복 주문 방지 (SH-07)', () => {
     await page.getByLabel('Take In', { exact: true }).check();
     await page.getByLabel('현장 결제', { exact: true }).check();
     await page.getByRole('button', { name: '주문하기', exact: true }).dblclick();
-    await expect(page).toHaveURL(/\/orders\/[^/]+$/);
+    await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
     expect(await ordersListed(page)).toBe(1);
   });
 
@@ -209,9 +315,13 @@ test.describe('중복 주문 방지 (SH-07)', () => {
     await page.goto('/checkout', { waitUntil: 'domcontentloaded' });
     await page.getByLabel('Take In', { exact: true }).check();
     await page.getByLabel('온라인 결제', { exact: true }).check();
-    await page.getByRole('button', { name: '모의 결제하기', exact: true }).click();
-    await page.getByRole('dialog').getByRole('button', { name: '모의 결제 승인', exact: true }).dblclick();
-    await expect(page).toHaveURL(/\/orders\/[^/]+$/);
+    await page.getByLabel('이슬페이', { exact: true }).check();
+    await payButton(page).dblclick();
+    await page.getByRole('dialog').getByRole('button', { name: '인증 요청하기', exact: true }).dblclick();
+    // 두 번째 클릭이 같은 자리의 인증 버튼을 눌러 인증을 건너뛰지 않는다
+    await expect(page.getByRole('dialog').getByRole('heading', { name: '이슬페이 앱 인증' })).toBeVisible();
+    await page.getByRole('dialog').getByRole('button', { name: '인증하고 결제하기', exact: true }).dblclick();
+    await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
     expect(await ordersListed(page)).toBe(1);
   });
 
@@ -226,7 +336,7 @@ test.describe('중복 주문 방지 (SH-07)', () => {
     await page.keyboard.press('Enter');
     await page.keyboard.press('Enter');
     await page.keyboard.press('Enter');
-    await expect(page).toHaveURL(/\/orders\/[^/]+$/);
+    await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
     expect(await ordersListed(page)).toBe(1);
   });
 
@@ -239,7 +349,7 @@ test.describe('중복 주문 방지 (SH-07)', () => {
     await page.getByLabel('Take Out', { exact: true }).check();
     await page.getByLabel('현장 결제', { exact: true }).check();
     await page.getByRole('button', { name: '주문하기', exact: true }).click();
-    await expect(page).toHaveURL(/\/orders\/[^/]+$/);
+    await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
     const orderUrl = page.url();
 
     await page.goBack();
@@ -253,7 +363,7 @@ test.describe('중복 주문 방지 (SH-07)', () => {
 
     await page.goto('/checkout', { waitUntil: 'domcontentloaded' });
     await expect(page.getByText('장바구니가 비어 있어요.')).toBeVisible();
-    await expect(page.getByRole('button', { name: /주문하기|모의 결제하기/ })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: /주문하기|결제하기/ })).toHaveCount(0);
     expect(await ordersListed(page)).toBe(1);
   });
 
@@ -276,6 +386,25 @@ test.describe('중복 주문 방지 (SH-07)', () => {
     const loser = /\/orders\/[^/]+$/.test(page.url()) ? other : page;
     await expect(loser.getByRole('alert').filter({ hasText: '메뉴를 먼저 장바구니에 담아 주세요.' })).toBeVisible();
     await expect(loser.getByRole('link', { name: '주문 내역 확인', exact: true })).toBeVisible();
+    expect(await ordersListed(page)).toBe(1);
+    await other.close();
+  });
+
+  test('두 탭에서 같은 장바구니를 온라인으로 결제해도 주문은 한 건이다', async ({ page, context }) => {
+    await signUp(page, uid('tbo'));
+    await fillCart(page);
+    const other = await context.newPage();
+    for (const tab of [page, other]) {
+      await tab.goto('/checkout', { waitUntil: 'domcontentloaded' });
+      await fillForm(tab);
+      await payButton(tab).click();
+    }
+    await authorizePayment(page);
+    await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
+    await authorizePayment(other);
+    await expect(other.getByRole('heading', { name: '이미 처리된 주문이에요' })).toBeVisible();
+    await other.getByRole('link', { name: '주문 내역 보기', exact: true }).click();
+    await expect(other).toHaveURL(/\/orders$/);
     expect(await ordersListed(page)).toBe(1);
     await other.close();
   });
