@@ -41,7 +41,7 @@ export default function StorePage() {
   const loadScene = useAfterFirstPaint();
   return (
     <Container as="section" className="py-8 md:py-10">
-      <SectionHeading level={1} title="매장" description="햇살이 머무는 공간을 먼저 걸어보세요. 실제 매장 도면이 확정되기 전, 브랜드 콘셉트로 구성한 가상 공간이에요." className="mb-7" />
+      <SectionHeading level={1} title="매장" description="매장을 둘러봐요." className="mb-7" />
       {loadScene ? (
         <Suspense fallback={<StoreExperienceLoading />}>
           <StoreExperience />
