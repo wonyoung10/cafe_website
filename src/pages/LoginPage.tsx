@@ -1,5 +1,5 @@
-import CommercePage from '@/app/CommercePage';
+import AuthScreen from '@/components/auth/AuthScreen';
 
 export default function LoginPage() {
-  return <CommercePage title="로그인" />;
+  return <AuthScreen />;
 }
