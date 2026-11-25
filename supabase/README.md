@@ -49,6 +49,8 @@ VITE_SUPABASE_PUBLISHABLE_KEY=<프로젝트의-publishable-key>
 
 ## 5. Vercel에서 연결하기
 
+**Vercel과 Supabase를 연동했다면** `NEXT_PUBLIC_SUPABASE_URL`과 `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`(또는 `NEXT_PUBLIC_SUPABASE_ANON_KEY`)가 자동으로 들어갑니다. 이 값을 그대로 읽으므로 1~2번은 건너뛰고 3번 Redeploy만 하세요. 연동이 함께 넣는 `SUPABASE_SECRET_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `POSTGRES_*` 값은 사이트가 쓰지 않으며 브라우저로 나가지 않습니다.
+
 1. 카페의 Vercel 프로젝트에서 **Settings → Environment Variables**를 여세요.
 2. 위 두 변수의 이름과 값을 각각 등록하세요. 운영 배포는 **Production**, 미리보기에서도 연결하려면 **Preview**를 선택하세요.
 3. **Deployments**에서 해당 배포를 **Redeploy**하세요. 환경 변수는 새 빌드부터 적용됩니다.
