@@ -28,6 +28,8 @@ export default defineConfig({
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
+  // Vercel의 Supabase 연동은 공개 값에 NEXT_PUBLIC_을 붙인다. SUPABASE_로 시작하는 비밀 값은 노출하지 않는다.
+  envPrefix: ['VITE_', 'NEXT_PUBLIC_SUPABASE_'],
   server: { port: 5173 },
   preview: { port: 4173 },
   // three.js 청크(약 1MB)는 /store에서만 지연 로드되므로 경고 기준을 그 위로 둔다.

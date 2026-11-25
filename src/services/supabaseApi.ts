@@ -4,16 +4,24 @@ import type { CommerceApi } from './commerceApi';
 import type { Database, OrderWithLines } from './database';
 import { CommerceError, mapError } from './errors';
 import { validateLoginId } from '@/utils/credentials';
+import { readSupabaseConfig } from './supabaseConfig';
 import { checkCredentials, photoExtension, reviewBody } from './validation';
 
 type Client = SupabaseClient<Database>;
-const url = import.meta.env.VITE_SUPABASE_URL?.trim();
-const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
-export const supabaseConfigured = Boolean(url && key?.startsWith('sb_publishable_'));
+// 이름을 하나씩 적어야 Vite가 이 다섯 값만 번들에 넣는다 (import.meta.env 전체를 넘기지 않는다)
+const config = readSupabaseConfig({
+  VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+  VITE_SUPABASE_PUBLISHABLE_KEY: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+  NEXT_PUBLIC_SUPABASE_URL: import.meta.env.NEXT_PUBLIC_SUPABASE_URL,
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+});
+export const supabaseConfigured = config !== null;
 
 let pendingClient: Promise<Client> | undefined;
 function getClient(): Promise<Client> {
-  if (!supabaseConfigured || !url || !key) return Promise.reject(new CommerceError('not-configured'));
+  if (!config) return Promise.reject(new CommerceError('not-configured'));
+  const { url, key } = config;
   pendingClient ??= import('@supabase/supabase-js')
     .then(({ createClient }) => createClient<Database>(url, key))
     .catch(error => {
