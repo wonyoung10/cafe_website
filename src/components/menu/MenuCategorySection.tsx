@@ -50,10 +50,10 @@ export default function MenuCategorySection({ category, items }: MenuCategorySec
 
       <div className="grid min-w-0 grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
         {lead && (
-          <MenuCard item={lead} variant="lead" leadLayout={leadLayout} showCategory={false} className={cn(LEAD_SPAN[leadLayout])} />
+          <MenuCard item={lead} variant="lead" leadLayout={leadLayout} showCategory={false} showAddToCart className={cn(LEAD_SPAN[leadLayout])} />
         )}
         {rest.map((item) => (
-          <MenuCard key={item.id} item={item} showCategory={false} />
+          <MenuCard key={item.id} item={item} showCategory={false} showAddToCart />
         ))}
       </div>
     </motion.section>

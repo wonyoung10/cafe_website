@@ -1,4 +1,6 @@
 import { memo } from 'react';
+import AddToCart from '@/components/cart/AddToCart';
+import { useCommerce } from '@/contexts';
 import SmartImage from '@/components/common/SmartImage';
 import TemperatureBadges from '@/components/menu/TemperatureBadges';
 import { MENU_CATEGORIES } from '@/data/menu';
@@ -14,6 +16,7 @@ interface MenuCardProps {
   showCategory?: boolean;
   /** lead 카드의 데스크톱 격자 모양 (getLeadLayout) */
   leadLayout?: LeadLayout;
+  showAddToCart?: boolean;
   className?: string;
 }
 
@@ -38,9 +41,11 @@ function PriceRow({ item, temperatures, large = false }: { item: MenuItem; tempe
   );
 }
 
-function MenuCard({ item, variant = 'default', showCategory = true, leadLayout = 'full', className }: MenuCardProps) {
+function MenuCard({ item, variant = 'default', showCategory = true, leadLayout = 'full', showAddToCart = false, className }: MenuCardProps) {
+  const { configured } = useCommerce();
+  const canAdd = showAddToCart && configured;
   const category = MENU_CATEGORIES.find(({ id }) => id === item.category);
-  const temperatures = item.category === 'dessert' ? [] : item.temperatures;
+  const temperatures = item.category === 'dessert' || (canAdd && item.temperatures.length > 1) ? [] : item.temperatures;
 
   if (variant === 'lead') {
     return (
@@ -57,6 +62,7 @@ function MenuCard({ item, variant = 'default', showCategory = true, leadLayout =
           <p className="mt-1 text-sm text-ink-soft" lang="en">{item.nameEn}</p>
           <p className="mt-5 max-w-sm leading-relaxed text-ink-soft">{item.description}</p>
           <PriceRow item={item} temperatures={temperatures} large />
+          {canAdd && <AddToCart item={item} />}
         </div>
       </article>
     );
@@ -76,6 +82,7 @@ function MenuCard({ item, variant = 'default', showCategory = true, leadLayout =
         <p className="mt-0.5 text-xs text-ink-soft" lang="en">{item.nameEn}</p>
         <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-ink-soft">{item.description}</p>
         <PriceRow item={item} temperatures={temperatures} />
+        {canAdd && <AddToCart item={item} />}
       </div>
     </article>
   );
