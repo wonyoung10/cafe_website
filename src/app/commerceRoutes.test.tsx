@@ -14,7 +14,8 @@ it.each([
   ['/reviews/new?order=id&menu=cookie', '리뷰 쓰기'], ['/reviews/id/edit', '리뷰 수정'],
 ])('renders %s with its heading and title', async (path, title) => {
   const api = createMemoryApi();
-  await api.auth.signUp('Cafe123', 'abcdef');
+  // 로그인한 회원이 인증 화면에 오면 홈으로 보내므로 두 화면은 비회원으로 연다
+  if (path !== '/signup' && path !== '/login') await api.auth.signUp('Cafe123', 'abcdef');
   renderApp(path, { api });
   expect(await screen.findByRole('heading', { level: 1, name: title })).toBeInTheDocument();
   expect(document.title).toBe(title + ' · 하루의 잎');
