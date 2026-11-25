@@ -7,6 +7,7 @@
 | 정적 검사 | `tsc --noEmit`, ESLint | 전체 | 타입, Hooks 규칙, 미사용 코드 |
 | 단위/컴포넌트 | Vitest + Testing Library + jsdom | `src/**/*.test.ts(x)` | 유틸·데이터·컴포넌트 |
 | E2E | Playwright (chromium) | `tests/e2e/*.spec.ts` | 실제 브라우저 사용자 흐름 |
+| E2E (회원·구매·리뷰) | Playwright (chromium), 메모리 백엔드 빌드 | `tests/e2e/commerce/*.spec.ts` | 가입 → 담기 → 결제(모의) → 리뷰 전체 흐름 (§10) |
 | 빌드 | `vite build` | — | 번들 생성, 청크 분리 |
 | 수동 | Claude Code 내장 브라우저 | — | 시각 품질, 3D 조작감 |
 
@@ -79,3 +80,31 @@ E2E 공통 fixture에서 `page.on('console', type==='error')`와 `pageerror`를 
 ## 9. 미검증 항목 기록
 
 자동화로 검증하지 못한 항목(실기기 터치 감도, 저사양 GPU 프레임레이트, Safari/Firefox)은 `docs/agent-logs/A06-qa.md`에 **미검증**으로 명시한다.
+
+## 10. 회원·구매·리뷰 E2E (A16)
+
+실제 Supabase 없이 브라우저에서 전체 흐름을 보려고 메모리 백엔드(`VITE_COMMERCE_BACKEND=memory`, localStorage 보관)로 따로 빌드해 시험한다. 기존 스펙은 기본 빌드를 그대로 쓰므로 서로 덮어쓰지 않는다.
+
+| 프로젝트 | 빌드·포트 | 스펙 |
+|---|---|---|
+| `desktop-chromium`, `mobile-chromium` | 기본 빌드 `dist`, 4173 | `tests/e2e/*.spec.ts` (commerce 폴더 제외) |
+| `commerce-desktop` | 메모리 빌드 `node_modules/.cache/haru-commerce-memory`, 4183 | `tests/e2e/commerce/*.spec.ts` 전부 |
+| `commerce-mobile` (Pixel 7) | 같은 메모리 빌드 | 위에서 `layout`·`keyboard` 제외 (이 둘은 뷰포트를 스스로 정하거나 키보드 전용이라 데스크톱만) |
+| `commerce-default-build` | 기본 빌드, 4173 | `unconfigured.spec.ts` (키 없는 운영 빌드는 준비 안내만, 번들에 메모리 백엔드 없음) |
+
+- 포트는 `E2E_PORT`, `E2E_COMMERCE_PORT` 환경 변수로 바꿀 수 있다. 다른 작업 트리가 같은 포트를 쓰고 있으면 `reuseExistingServer` 때문에 엉뚱한 빌드를 시험하게 되니 바꿔서 돌린다.
+- `tests/e2e/commerce/helpers.ts`의 `test`는 기본 fixture(같은 출처 콘솔 오류 0건)에 더해 모든 테스트에서 자동으로 확인한다: 결제사 호스트로 간 요청 없음, 허용 목록(글꼴·지도) 밖 외부 요청 없음, GET 아닌 요청 없음.
+- 테스트마다 새 브라우저 컨텍스트라 저장소가 비어 있고, 아이디는 `uid()`로 테스트마다 다르게 만든다. 한 테스트 안에서 로그아웃 후 다른 아이디로 가입하면 같은 브라우저를 쓰는 두 사용자가 된다(타인 리뷰 가림·수정 불가·남의 주문 접근 확인).
+- 알려진 앱 버그를 문서화한 테스트는 `test.fail(true, 'BUG-nn …')`로 둔다. 버그가 고쳐지면 "예상과 달리 통과"로 실패하므로 그때 `test.fail`을 지운다.
+
+| 요구사항 | 스펙 |
+|---|---|
+| AU-01~07 | `auth.spec.ts` (+ `keyboard.spec.ts`의 가입) |
+| SH-01~03 | `cart.spec.ts` |
+| SH-04~08 | `checkout.spec.ts` |
+| RV-01~09 | `reviews.spec.ts` |
+| 직접 주소·리디렉션·문서 제목 | `access.spec.ts` |
+| 375px·768px 가로 넘침, 머리글 | `layout.spec.ts` |
+| 키보드만으로 구매 | `keyboard.spec.ts` |
+| 키 없는 빌드 | `unconfigured.spec.ts` |
+
