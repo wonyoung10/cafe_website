@@ -79,6 +79,7 @@ function cartRow(item: CartItem) {
   return { menu_id: item.menuId, temperature: item.temperature ?? '' as const, quantity: item.quantity };
 }
 
+const uuidPattern = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 const orderColumns = 'id,order_no,total,receive_method,payment_method,payment_status,created_at,order_lines(menu_id,name,temperature,unit_price,quantity)';
 function order(row: OrderWithLines) {
   return {
@@ -180,6 +181,8 @@ export function createSupabaseApi(clientFor: () => Promise<Client> = getClient):
         return (rows ?? []).map(order);
       },
       async get(id) {
+        // uuid가 아닌 주소를 DB에 보내면 22P02 오류가 나므로 없는 주문으로 다룬다
+        if (!uuidPattern.test(id)) return null;
         const client = await clientFor();
         const row = await result(client.from('orders').select(orderColumns).eq('user_id', await uid(client)).eq('id', id).maybeSingle());
         return row ? order(row) : null;
