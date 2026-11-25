@@ -44,10 +44,10 @@ async function choose(receive: string, payment: string) {
 }
 
 const combinations: [ReceiveMethod, string, PaymentMethod, string, string][] = [
-  ['takeout', '테이크아웃', 'onsite', '현장 결제', '현장에서 결제 예정'],
-  ['takeout', '테이크아웃', 'online', '온라인 결제', '모의 결제 완료'],
-  ['dine-in', '매장에서', 'onsite', '현장 결제', '현장에서 결제 예정'],
-  ['dine-in', '매장에서', 'online', '온라인 결제', '모의 결제 완료'],
+  ['takeout', 'Take Out', 'onsite', '현장 결제', '현장에서 결제 예정'],
+  ['takeout', 'Take Out', 'online', '온라인 결제', '모의 결제 완료'],
+  ['dine-in', 'Take In', 'onsite', '현장 결제', '현장에서 결제 예정'],
+  ['dine-in', 'Take In', 'online', '온라인 결제', '모의 결제 완료'],
 ];
 
 it.each(combinations)('SH-04–07 places one %s (%s) / %s order across double clicks', async (r, receive, p, payment, status) => {
@@ -94,7 +94,7 @@ it('SH-04/05 requires both radio groups and focuses the first invalid choice', a
   const api = await checkout();
   const submit = screen.getByRole('button', { name: '주문하기' });
   await userEvent.click(submit);
-  const receive = screen.getByRole('radio', { name: '테이크아웃' });
+  const receive = screen.getByRole('radio', { name: 'Take Out' });
   expect(receive).toHaveFocus();
   expect(receive).toHaveAttribute('aria-invalid', 'true');
   expect(receive).toHaveAccessibleDescription('받는 방법을 선택해 주세요.');
@@ -109,7 +109,7 @@ it('SH-04/05 requires both radio groups and focuses the first invalid choice', a
 it('SH-06/07 cancels a mock payment without touching the cart or placing an order', async () => {
   const api = await checkout();
   const spy = vi.spyOn(api.orders, 'place');
-  await choose('테이크아웃', '온라인 결제');
+  await choose('Take Out', '온라인 결제');
   await userEvent.click(screen.getByRole('button', { name: '모의 결제하기' }));
   await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: '취소' }));
   expect(screen.queryByRole('dialog')).toBeNull();
@@ -122,7 +122,7 @@ it('SH-06/07 cancels a mock payment without touching the cart or placing an orde
 it('SH-07 keeps the cart and choices on failure, permits retry, and opens the receipt even if cart refresh fails', async () => {
   const api = await checkout();
   vi.spyOn(api.orders, 'place').mockRejectedValueOnce(new Error('network'));
-  await choose('매장에서', '온라인 결제');
+  await choose('Take In', '온라인 결제');
   const start = screen.getByRole('button', { name: '모의 결제하기' });
   await userEvent.click(start);
   await userEvent.click(screen.getByRole('button', { name: '모의 결제 승인' }));
@@ -180,7 +180,7 @@ it('SH-07 replaces checkout with the receipt so Back returns to the cart', async
   await api.cart.add(item);
   render(<MemoryRouter initialEntries={['/cart', '/checkout']}><AppRoutes api={api} /><Back /></MemoryRouter>);
   await screen.findByRole('group', { name: '받는 방법' });
-  await choose('테이크아웃', '현장 결제');
+  await choose('Take Out', '현장 결제');
   await userEvent.click(screen.getByRole('button', { name: '주문하기' }));
   expect(await screen.findByText('현장에서 결제 예정')).toBeVisible();
   await userEvent.click(screen.getByRole('button', { name: '뒤로 가기' }));

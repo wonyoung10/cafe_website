@@ -138,7 +138,7 @@ for (const viewport of VIEWPORTS) {
       await page.getByRole('button', { name: '주문하기', exact: true }).click();
       await expect(page.getByRole('alert').first()).toBeVisible();
       await measure(page, failures, `${viewport.width}px /checkout (오류)`);
-      await page.getByLabel('테이크아웃', { exact: true }).check();
+      await page.getByLabel('Take Out', { exact: true }).check();
       await page.getByLabel('온라인 결제', { exact: true }).check();
       await page.getByRole('button', { name: '모의 결제하기', exact: true }).click();
       const dialog = page.getByRole('dialog', { name: '모의 결제' });

@@ -5,7 +5,7 @@ import {
   signUp, test, uid, type Pay, type Receive,
 } from './helpers';
 
-const RECEIVE_LABEL: Record<Receive, string> = { takeout: '테이크아웃', 'dine-in': '매장에서' };
+const RECEIVE_LABEL: Record<Receive, string> = { takeout: 'Take Out', 'dine-in': 'Take In' };
 const STATUS_LABEL: Record<Pay, string> = { onsite: '현장에서 결제 예정', online: '모의 결제 완료' };
 
 /** 아메리카노 ICE 2잔 + 크루아상 1개 = 14,100원 */
@@ -93,12 +93,12 @@ test.describe('결제 화면의 입력 검사 (SH-04, SH-05)', () => {
     await expect(submit).toBeEnabled();
     await submit.click();
     await expect(page.getByRole('alert').filter({ hasText: '받는 방법을 선택해 주세요.' })).toBeVisible();
-    await expect(page.getByLabel('테이크아웃', { exact: true })).toBeFocused();
-    await expect(page.getByLabel('테이크아웃', { exact: true })).toHaveAttribute('aria-invalid', 'true');
-    await expect(page.getByLabel('테이크아웃', { exact: true })).toHaveAccessibleDescription('받는 방법을 선택해 주세요.');
+    await expect(page.getByLabel('Take Out', { exact: true })).toBeFocused();
+    await expect(page.getByLabel('Take Out', { exact: true })).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.getByLabel('Take Out', { exact: true })).toHaveAccessibleDescription('받는 방법을 선택해 주세요.');
     await expect(page).toHaveURL(/\/checkout$/);
 
-    await page.getByLabel('매장에서', { exact: true }).check();
+    await page.getByLabel('Take In', { exact: true }).check();
     await submit.click();
     await expect(page.getByRole('alert').filter({ hasText: '결제 방법을 선택해 주세요.' })).toBeVisible();
     await expect(page.getByLabel('현장 결제', { exact: true })).toBeFocused();
@@ -119,7 +119,7 @@ test.describe('모의 결제 창 (SH-06, SH-07)', () => {
     await signUp(page, uid('dlg'));
     await fillCart(page);
     await page.goto('/checkout', { waitUntil: 'domcontentloaded' });
-    await page.getByLabel('테이크아웃', { exact: true }).check();
+    await page.getByLabel('Take Out', { exact: true }).check();
     await page.getByLabel('온라인 결제', { exact: true }).check();
     const opener = page.getByRole('button', { name: '모의 결제하기', exact: true });
     await opener.click();
@@ -196,7 +196,7 @@ test.describe('중복 주문 방지 (SH-07)', () => {
     await signUp(page, uid('dbl'));
     await fillCart(page);
     await page.goto('/checkout', { waitUntil: 'domcontentloaded' });
-    await page.getByLabel('매장에서', { exact: true }).check();
+    await page.getByLabel('Take In', { exact: true }).check();
     await page.getByLabel('현장 결제', { exact: true }).check();
     await page.getByRole('button', { name: '주문하기', exact: true }).dblclick();
     await expect(page).toHaveURL(/\/orders\/[^/]+$/);
@@ -207,7 +207,7 @@ test.describe('중복 주문 방지 (SH-07)', () => {
     await signUp(page, uid('dbo'));
     await fillCart(page);
     await page.goto('/checkout', { waitUntil: 'domcontentloaded' });
-    await page.getByLabel('매장에서', { exact: true }).check();
+    await page.getByLabel('Take In', { exact: true }).check();
     await page.getByLabel('온라인 결제', { exact: true }).check();
     await page.getByRole('button', { name: '모의 결제하기', exact: true }).click();
     await page.getByRole('dialog').getByRole('button', { name: '모의 결제 승인', exact: true }).dblclick();
@@ -219,7 +219,7 @@ test.describe('중복 주문 방지 (SH-07)', () => {
     await signUp(page, uid('ent'));
     await fillCart(page);
     await page.goto('/checkout', { waitUntil: 'domcontentloaded' });
-    await page.getByLabel('테이크아웃', { exact: true }).check();
+    await page.getByLabel('Take Out', { exact: true }).check();
     await page.getByLabel('현장 결제', { exact: true }).check();
     const submit = page.getByRole('button', { name: '주문하기', exact: true });
     await submit.focus();
@@ -236,7 +236,7 @@ test.describe('중복 주문 방지 (SH-07)', () => {
     await page.goto('/cart', { waitUntil: 'domcontentloaded' });
     await page.getByRole('link', { name: '결제하기', exact: true }).click();
     await expect(page).toHaveURL(/\/checkout$/);
-    await page.getByLabel('테이크아웃', { exact: true }).check();
+    await page.getByLabel('Take Out', { exact: true }).check();
     await page.getByLabel('현장 결제', { exact: true }).check();
     await page.getByRole('button', { name: '주문하기', exact: true }).click();
     await expect(page).toHaveURL(/\/orders\/[^/]+$/);
@@ -263,7 +263,7 @@ test.describe('중복 주문 방지 (SH-07)', () => {
     const other = await context.newPage();
     for (const tab of [page, other]) {
       await tab.goto('/checkout', { waitUntil: 'domcontentloaded' });
-      await tab.getByLabel('테이크아웃', { exact: true }).check();
+      await tab.getByLabel('Take Out', { exact: true }).check();
       await tab.getByLabel('현장 결제', { exact: true }).check();
       await expect(tab.getByRole('button', { name: '주문하기', exact: true })).toBeEnabled();
     }
@@ -299,7 +299,7 @@ test.describe('주문 내역과 상세 (SH-08)', () => {
     await expect(links.nth(1)).toContainText('3,500원');
     await links.nth(1).click();
     await expect(page).toHaveURL(new RegExp(`/orders/${first}$`));
-    await expect(definition(page, '받는 방법')).toHaveText('테이크아웃');
+    await expect(definition(page, '받는 방법')).toHaveText('Take Out');
   });
 
   test('로그인하지 않은 사람의 /orders 와 /checkout 은 로그인 화면으로 보낸다', async ({ page }) => {
