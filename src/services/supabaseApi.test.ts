@@ -104,9 +104,12 @@ describe('Supabase adapter', () => {
       payment_method: 'onsite', payment_status: 'onsite-due', created_at: 'today',
       order_lines: [{ ...line, name: '쿠키', unit_price: 2000 }] }));
     expect(await api.cart.list()).toEqual([{ menuId: 'cookie', temperature: null, quantity: 2 }]);
-    expect(await api.orders.get('o')).toEqual({ id: 'o', orderNo: 'N', total: 4000, receiveMethod: 'takeout',
+    const orderId = '0b8f1c52-5a0e-4b7c-9f0a-2f6c1d3e4a5b';
+    expect(await api.orders.get(orderId)).toEqual({ id: 'o', orderNo: 'N', total: 4000, receiveMethod: 'takeout',
       paymentMethod: 'onsite', paymentStatus: 'onsite-due', createdAt: 'today',
       lines: [{ menuId: 'cookie', temperature: null, quantity: 2, name: '쿠키', unitPrice: 2000 }] });
+    // 잘못된 주소는 DB에 묻지 않고 없는 주문으로 처리한다 (남은 응답이 없으므로 요청하면 실패한다)
+    expect(await api.orders.get('not-a-uuid')).toBeNull();
     replies.push(response([{ id: 'r', menu_id: 'cookie', order_id: 'private', user_id: 'private',
       rating: 5, body: '좋아요', photo_path: 'uid/p.webp', author_masked: 'coffee**',
       is_mine: false, created_at: 'today', updated_at: null }]));
