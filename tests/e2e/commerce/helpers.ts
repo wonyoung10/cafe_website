@@ -145,7 +145,7 @@ export async function expectCartCount(page: Page, count: number) {
 
 export type Receive = 'takeout' | 'dine-in';
 export type Pay = 'onsite' | 'online';
-export const receiveLabel: Record<Receive, string> = { takeout: '테이크아웃', 'dine-in': '매장에서' };
+export const receiveLabel: Record<Receive, string> = { takeout: 'Take Out', 'dine-in': 'Take In' };
 export const payLabel: Record<Pay, string> = { onsite: '현장 결제', online: '온라인 결제' };
 
 /** /checkout 에서 방법을 고르고 주문한다. 주문 상세로 이동한 뒤 주문 id를 돌려준다. */

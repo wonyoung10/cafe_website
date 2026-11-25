@@ -1,8 +1,8 @@
 import type { CartItem, PaymentMethod, PaymentStatus, ReceiveMethod } from '@/types/commerce';
 
 export const receiveLabels: Record<ReceiveMethod, string> = {
-  takeout: '테이크아웃',
-  'dine-in': '매장에서',
+  takeout: 'Take Out',
+  'dine-in': 'Take In',
 };
 
 export const paymentLabels: Record<PaymentMethod, string> = {

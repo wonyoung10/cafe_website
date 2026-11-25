@@ -56,9 +56,9 @@ test('키보드만으로 가입 → 담기 → 결제(모의) → 리뷰 쓰기�
   await expect(page).toHaveURL(/\/checkout$/);
 
   // 받는 방법·결제 방법: 라디오는 Space 와 방향키
-  await tabTo(page, page.getByLabel('테이크아웃', { exact: true }));
+  await tabTo(page, page.getByLabel('Take Out', { exact: true }));
   await page.keyboard.press('Space');
-  await expect(page.getByLabel('테이크아웃', { exact: true })).toBeChecked();
+  await expect(page.getByLabel('Take Out', { exact: true })).toBeChecked();
   await tabTo(page, page.getByLabel('현장 결제', { exact: true }));
   await page.keyboard.press('ArrowRight');
   await expect(page.getByLabel('온라인 결제', { exact: true })).toBeChecked();
