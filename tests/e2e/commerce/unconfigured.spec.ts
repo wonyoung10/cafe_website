@@ -3,7 +3,7 @@ import { MEMORY_KEY, expect, test } from './helpers';
 
 // 기본 빌드(VITE_COMMERCE_BACKEND 없음, Supabase 키 없음)는 소개 사이트로 그대로 동작하고
 // 회원·구매·리뷰 화면은 준비 안내만 보여 준다. 이 스펙은 기본 빌드(4173)에서 실행된다.
-// 주의: 작업 트리에 .env.local 로 Supabase 키를 넣어 두면 이 가정이 깨진다.
+// .env.local 에 Supabase 키가 있어도 playwright.config 가 빈 값으로 덮어써 같은 조건을 만든다.
 
 test('회원·구매·리뷰 화면은 서비스 준비 안내를 보여 주고 폼을 그리지 않는다', async ({ page }) => {
   for (const [path, heading] of [['/login', '로그인'], ['/signup', '회원가입'], ['/cart', '장바구니'], ['/reviews', '리뷰 모아보기']] as const) {

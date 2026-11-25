@@ -15,6 +15,7 @@ function CartLines() {
   const [confirm, setConfirm] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
+  // 처리 중이거나 한도에 닿아도 버튼을 disabled로 바꾸지 않는다. 누른 버튼의 키보드 초점이 사라지기 때문이다.
   const locked = useRef(false);
   const list = useRef<HTMLDivElement>(null);
   const cancelButton = useRef<HTMLButtonElement>(null);
@@ -74,18 +75,18 @@ function CartLines() {
                 <p className="text-sm text-ink-soft">개당 {formatPrice(menu.price)}</p>
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
                   <div role="group" aria-label={name + ' 수량'} className="inline-flex items-center rounded-leaf-sm border border-line">
-                    <button type="button" aria-label={name + ' 수량 줄이기'} disabled={busy || item.quantity <= 1}
-                      onClick={() => void change(item, item.quantity - 1)} className="grid size-11 place-items-center text-forest disabled:opacity-40">
+                    <button type="button" aria-label={name + ' 수량 줄이기'} aria-disabled={busy || item.quantity <= 1}
+                      onClick={() => { if (item.quantity > 1) void change(item, item.quantity - 1); }} className="grid size-11 place-items-center text-forest aria-disabled:opacity-40">
                       <Minus aria-hidden className="size-4" />
                     </button>
                     <span className="min-w-8 text-center tabular-nums">{item.quantity}개</span>
-                    <button type="button" aria-label={name + ' 수량 늘리기'} disabled={busy || item.quantity >= 20}
-                      onClick={() => void change(item, item.quantity + 1)} className="grid size-11 place-items-center text-forest disabled:opacity-40">
+                    <button type="button" aria-label={name + ' 수량 늘리기'} aria-disabled={busy || item.quantity >= 20}
+                      onClick={() => { if (item.quantity < 20) void change(item, item.quantity + 1); }} className="grid size-11 place-items-center text-forest aria-disabled:opacity-40">
                       <Plus aria-hidden className="size-4" />
                     </button>
                   </div>
                   <button type="button" ref={node => { if (node) removeButtons.current.set(key, node); else removeButtons.current.delete(key); }}
-                    aria-label={name + ' 삭제'} disabled={busy} onClick={() => setConfirm(key)}
+                    aria-label={name + ' 삭제'} aria-disabled={busy} onClick={() => { if (!busy) setConfirm(key); }}
                     className="min-h-11 min-w-11 text-sm text-walnut underline underline-offset-4">삭제</button>
                 </div>
                 {confirm === key && (

@@ -126,7 +126,6 @@ test.describe('회원가입 규칙 (AU-01~05, AU-07)', () => {
   // BUG-01: 확인 칸에 틀린 값을 쓰고 곧바로 버튼을 누르면 mousedown 에서 blur 오류가 생겨 버튼이 아래로 밀리고,
   // mouseup 이 버튼 밖에서 일어나 첫 클릭이 사라진다 (제출도 초점 이동도 일어나지 않는다).
   test('BUG-01 틀린 확인 값을 쓴 직후 한 번 클릭하면 제출되고 확인 칸으로 초점이 간다', async ({ page }) => {
-    test.fail(true, 'BUG-01: blur 오류가 버튼을 밀어 첫 클릭이 사라진다');
     await fillSignup(page, uid('m'), PASSWORD, PASSWORD + 'x');
     await expect(page.getByLabel('비밀번호 확인', { exact: true })).toBeFocused({ timeout: 2000 });
   });

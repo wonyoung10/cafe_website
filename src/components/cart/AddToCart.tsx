@@ -15,7 +15,7 @@ export default function AddToCart({ item }: { item: MenuItem }) {
   const lock = useRef(false);
 
   async function addOne() {
-    if (lock.current) return;
+    if (lock.current || status === 'loading') return;
     const name = lineName(item.name, temperature);
     setError('');
     if (items.some(line => line.menuId === item.id && line.temperature === temperature && line.quantity >= 20)) {
@@ -53,10 +53,11 @@ export default function AddToCart({ item }: { item: MenuItem }) {
             ))}
           </fieldset>
         )}
-        <Button disabled={pending || status === 'loading'} onClick={() => void addOne()}>담기</Button>
+        {/* disabled로 바꾸면 키보드 초점이 사라지므로 aria-disabled로 알리고 addOne이 중복을 막는다 */}
+        <Button aria-disabled={pending || status === 'loading'} className="aria-disabled:opacity-50" onClick={() => void addOne()}>담기</Button>
       </div>
-      <p role={message ? 'status' : undefined} aria-live="polite" aria-atomic="true" className="text-sm text-forest empty:sr-only">{message}</p>
-      {error && <p role="alert" className="text-sm text-walnut">{error}</p>}
+      <p role={message ? 'status' : undefined} aria-live="polite" aria-atomic="true" className="mt-2 text-sm text-forest empty:sr-only">{message}</p>
+      {error && <p role="alert" className="mt-2 text-sm text-walnut">{error}</p>}
     </div>
   );
 }

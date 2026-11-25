@@ -16,6 +16,12 @@ const commerceSpecs = /[\\/]commerce[\\/].*\.spec\.ts$/;
 const unconfiguredSpec = /[\\/]commerce[\\/]unconfigured\.spec\.ts$/;
 const desktopOnlySpecs = [/[\\/]commerce[\\/]layout\.spec\.ts$/, /[\\/]commerce[\\/]keyboard\.spec\.ts$/];
 
+// .env.local에 실제 키가 있어도 E2E 빌드가 실제 DB에 접속하지 않게 비운다 (프로세스 환경 변수가 파일보다 우선한다)
+const noSupabase = {
+  VITE_SUPABASE_URL: '', VITE_SUPABASE_PUBLISHABLE_KEY: '',
+  NEXT_PUBLIC_SUPABASE_URL: '', NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: '', NEXT_PUBLIC_SUPABASE_ANON_KEY: '',
+};
+
 const desktop = { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } };
 const commerceURL = `http://localhost:${COMMERCE_PORT}`;
 
@@ -53,12 +59,14 @@ export default defineConfig({
   webServer: [
     {
       command: `npm run build && npm run preview -- --port ${PORT} --strictPort`,
+      env: noSupabase,
       url: `http://localhost:${PORT}`,
       reuseExistingServer: !process.env.CI,
       timeout: 180_000,
     },
     {
       command: `env VITE_COMMERCE_BACKEND=memory npx vite build --outDir ${COMMERCE_DIST} --emptyOutDir && npx vite preview --outDir ${COMMERCE_DIST} --port ${COMMERCE_PORT} --strictPort`,
+      env: noSupabase,
       url: commerceURL,
       reuseExistingServer: !process.env.CI,
       timeout: 180_000,

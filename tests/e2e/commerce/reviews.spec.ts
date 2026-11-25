@@ -263,7 +263,6 @@ test.describe('리뷰 쓰기: 별점·글 필수, 사진 선택 (RV-03, RV-07)',
 
   // BUG-05: 사진 오류는 role 이 없는 <p> 라서 사진을 고른 직후(초점이 움직이지 않음) 스크린리더에 알려지지 않는다.
   test('BUG-05 사진 오류는 alert/status 로 알려진다', async ({ page }) => {
-    test.fail(true, 'BUG-05: #review-photo-error 에 role=alert 도 live region 도 없다 (src/components/reviews/FieldError.tsx, PhotoField.tsx)');
     await signUp(page, uid('lv'));
     const orderId = await orderAs(page, [{ name: '쿠키' }]);
     await openNewReview(page, orderId, '쿠키');
