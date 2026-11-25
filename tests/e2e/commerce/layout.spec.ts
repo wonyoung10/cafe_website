@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 import type { Page } from '@playwright/test';
 import {
-  addToCart, expect, expectCartCount, horizontalOverflow, openAccountMenu, orderAs, signUp, solidPng, test, uid, writeReview,
+  addToCart, expect, expectCartCount, horizontalOverflow, openAccountMenu, orderAs, payButton, signUp, solidPng, test, uid, writeReview,
 } from './helpers';
 
 // 새 화면이 375px(작은 폰)와 768px(태블릿 경계)에서 가로로 넘치지 않는지 본다.
@@ -140,12 +140,24 @@ for (const viewport of VIEWPORTS) {
       await measure(page, failures, `${viewport.width}px /checkout (오류)`);
       await page.getByLabel('테이크아웃', { exact: true }).check();
       await page.getByLabel('온라인 결제', { exact: true }).check();
-      await page.getByRole('button', { name: '모의 결제하기', exact: true }).click();
-      const dialog = page.getByRole('dialog', { name: '모의 결제' });
-      await expect(dialog).toBeVisible();
-      const box = await dialog.boundingBox();
-      if (!box || box.x < -1 || box.x + box.width > viewport.width + 1) failures.push(`${viewport.width}px 모의 결제 창이 화면 밖: ${JSON.stringify(box)}`);
-      await measure(page, failures, `${viewport.width}px /checkout (모의 결제 창)`);
+      await measure(page, failures, `${viewport.width}px /checkout (결제수단)`);
+      await page.getByLabel('나이테카드', { exact: true }).check();
+      await expect(page.getByLabel('할부', { exact: true })).toBeVisible();
+      await payButton(page).click();
+      const dialog = page.getByRole('dialog', { name: '하루의 잎 결제' });
+      const dialogFits = async (step: string) => {
+        await expect(dialog).toBeVisible();
+        const box = await dialog.boundingBox();
+        if (!box || box.x < -1 || box.x + box.width > viewport.width + 1 || box.y < -1 || box.y + box.height > viewport.height + 1) {
+          failures.push(`${viewport.width}px 결제창(${step})이 화면 밖: ${JSON.stringify(box)}`);
+        }
+        await measure(page, failures, `${viewport.width}px /checkout (결제창 ${step})`);
+      };
+      await dialogFits('확인');
+      await dialog.getByRole('button', { name: '인증 요청하기', exact: true }).click();
+      await dialogFits('인증');
+      await dialog.getByRole('button', { name: '거절하기', exact: true }).click();
+      await dialogFits('실패');
       await page.keyboard.press('Escape');
 
       // 머리글: 계정 메뉴를 연 상태

@@ -37,7 +37,8 @@ it('SH-08 sorts orders newest first and links each purchased menu to its review 
   expect(reviewQuery).toHaveBeenCalledWith({ mineOnly: true });
   expect(screen.getByText('아메리카노 HOT')).toBeVisible();
   expect(screen.getByText('아메리카노 ICE')).toBeVisible();
-  expect(screen.getByText('13,100원')).toBeVisible();
+  expect(within(screen.getByRole('region', { name: '주문 요약' })).getByText('13,100원')).toBeVisible();
+  expect(within(screen.getByRole('region', { name: '영수증' })).getByText('13,100원')).toBeVisible();
 });
 
 it('SH-08 hides the receipt, lines and review links when another member views the same order id', async () => {

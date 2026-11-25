@@ -148,14 +148,33 @@ export type Pay = 'onsite' | 'online';
 export const receiveLabel: Record<Receive, string> = { takeout: '테이크아웃', 'dine-in': '매장에서' };
 export const payLabel: Record<Pay, string> = { onsite: '현장 결제', online: '온라인 결제' };
 
+/** 온라인 결제의 결제 버튼 ('14,100원 결제하기') */
+export function payButton(page: Page): Locator {
+  return page.getByRole('button', { name: /원 결제하기$/ });
+}
+
+/** 열린 결제창에서 인증을 요청하고 앱 인증까지 누른다 */
+export async function authorizePayment(page: Page) {
+  const dialog = page.getByRole('dialog', { name: '하루의 잎 결제' });
+  await dialog.getByRole('button', { name: '인증 요청하기', exact: true }).click();
+  await dialog.getByRole('button', { name: '인증하고 결제하기', exact: true }).click();
+}
+
+/** 온라인 결제는 승인 처리·완료를 약 3초 보여 주므로 주문 화면을 기본 5초보다 오래 기다린다 */
+export const ORDER_URL = /\/orders\/[^/]+$/;
+export const ORDER_WAIT = { timeout: 15_000 };
+
 /** /checkout 에서 방법을 고르고 주문한다. 주문 상세로 이동한 뒤 주문 id를 돌려준다. */
 export async function checkout(page: Page, receive: Receive, pay: Pay): Promise<string> {
   if (new URL(page.url()).pathname !== '/checkout') await page.goto('/checkout', { waitUntil: 'domcontentloaded' });
   await page.getByLabel(receiveLabel[receive], { exact: true }).check();
   await page.getByLabel(payLabel[pay], { exact: true }).check();
-  await page.getByRole('button', { name: pay === 'online' ? '모의 결제하기' : '주문하기', exact: true }).click();
-  if (pay === 'online') await page.getByRole('dialog').getByRole('button', { name: '모의 결제 승인', exact: true }).click();
-  await expect(page).toHaveURL(/\/orders\/[^/]+$/);
+  if (pay === 'online') {
+    await page.getByLabel('나이테카드', { exact: true }).check();
+    await payButton(page).click();
+    await authorizePayment(page);
+  } else await page.getByRole('button', { name: '주문하기', exact: true }).click();
+  await expect(page).toHaveURL(ORDER_URL, ORDER_WAIT);
   return orderIdFromUrl(page);
 }
 
