@@ -2,6 +2,8 @@ import { Menu, X } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { NAV_ITEMS, ROUTES } from '@/app/routes';
+import AccountMenu from '@/components/auth/AccountMenu';
+import CartButton from '@/components/cart/CartButton';
 import BrandLogo from '@/components/common/BrandLogo';
 import Container from '@/components/common/Container';
 import { BRAND } from '@/data/brand';
@@ -9,7 +11,7 @@ import { cn } from '@/utils/cn';
 
 function desktopLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
-    'relative inline-flex h-11 items-center px-1 text-[0.9375rem] font-semibold transition-colors duration-200',
+    'relative inline-flex h-11 min-w-11 items-center justify-center px-1 text-[0.9375rem] font-semibold transition-colors duration-200',
     'after:absolute after:bottom-1 after:left-1/2 after:h-1.5 after:w-4 after:-translate-x-1/2 after:rounded-[0.75rem_0.125rem] after:bg-sprout after:transition-transform after:duration-300 after:ease-[var(--ease-leaf)]',
     isActive ? 'text-forest after:scale-x-100' : 'text-ink-soft after:scale-x-0 hover:text-forest hover:after:scale-x-100',
   );
@@ -62,12 +64,12 @@ export default function Header() {
       )}
     >
       <Container className="flex h-full items-center justify-between">
-        <Link to={ROUTES.home} aria-label={`${BRAND.name} 홈으로`} className="rounded-full" onClick={closeMenu}>
+        <Link to={ROUTES.home} aria-label={`${BRAND.name} 홈으로`} className="inline-flex min-h-11 items-center whitespace-nowrap rounded-leaf-sm" onClick={closeMenu}>
           <BrandLogo />
         </Link>
 
-        <nav aria-label="주 메뉴" className="hidden md:block">
-          <ul className="flex items-center gap-7">
+        <nav aria-label="주 메뉴" className="ml-auto hidden md:block">
+          <ul className="flex items-center gap-2 lg:gap-7">
             {NAV_ITEMS.map((item) => (
               <li key={item.to}>
                 <NavLink to={item.to} className={desktopLinkClass}>
@@ -78,16 +80,20 @@ export default function Header() {
           </ul>
         </nav>
 
-        <button
-          type="button"
-          className="-mr-2 grid size-11 place-items-center rounded-leaf-sm text-forest hover:bg-cream md:hidden"
-          aria-expanded={isMenuOpen}
-          aria-controls={panelId}
-          aria-label={isMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
-          onClick={() => setOpenedAt(isMenuOpen ? null : locationKey)}
-        >
-          {isMenuOpen ? <X aria-hidden className="size-6" /> : <Menu aria-hidden className="size-6" />}
-        </button>
+        <div className="flex items-center gap-1 md:ml-4 lg:ml-8">
+          <CartButton />
+          <div className="hidden md:block"><AccountMenu /></div>
+          <button
+            type="button"
+            className="-mr-2 grid size-11 place-items-center rounded-leaf-sm text-forest hover:bg-cream md:hidden"
+            aria-expanded={isMenuOpen}
+            aria-controls={panelId}
+            aria-label={isMenuOpen ? '메뉴 닫기' : '메뉴 열기'}
+            onClick={() => setOpenedAt(isMenuOpen ? null : locationKey)}
+          >
+            {isMenuOpen ? <X aria-hidden className="size-6" /> : <Menu aria-hidden className="size-6" />}
+          </button>
+        </div>
       </Container>
 
       {/* 모바일 메뉴 패널 */}
@@ -113,6 +119,7 @@ export default function Header() {
               </li>
             ))}
           </ul>
+          <AccountMenu variant="panel" />
           <p className="mt-6 px-4 text-sm text-ink-soft">{BRAND.subTagline}</p>
         </nav>
       </div>

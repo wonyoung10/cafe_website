@@ -2,11 +2,12 @@ import { render } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import AppRoutes from '@/app/router';
+import type { CommerceApi } from '@/services/commerceApi';
 
-export function renderApp(initialPath = '/') {
+export function renderApp(initialPath = '/', { api }: { api?: CommerceApi } = {}) {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
-      <AppRoutes />
+      <AppRoutes api={api} />
     </MemoryRouter>,
   );
 }
