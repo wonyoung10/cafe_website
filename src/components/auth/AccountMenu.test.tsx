@@ -1,8 +1,11 @@
-import { screen, within } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useLocation, useNavigate, type NavigateFunction } from 'react-router-dom';
 import { beforeEach, expect, it } from 'vitest';
+import AccountMenu from '@/components/auth/AccountMenu';
+import { AuthContext } from '@/contexts/auth';
 import { createMemoryApi } from '@/services/memoryApi';
-import { renderApp } from '@/test/renderWithRouter';
+import { renderApp, renderWithRouter } from '@/test/renderWithRouter';
 
 beforeEach(() => localStorage.clear());
 
@@ -64,4 +67,28 @@ it.each(['desktop', 'panel'])('AU-01 · %s 로그아웃이 세션을 종료하�
   await user.click(account.getByRole('button', { name: '로그아웃' }));
   expect(await account.findByRole('link', { name: '로그인' })).toHaveFocus();
   expect(await api.auth.getSession()).toBeNull();
+});
+
+it('AU-01 · 같은 주소의 기록만 바뀌면(리뷰 저장 안내 지우기) 열린 메뉴를 닫지 않고, 같은 주소 링크를 누르면 닫는다', async () => {
+  const none = async (): Promise<never> => { throw new Error('unused'); };
+  let navigate!: NavigateFunction;
+  function Probe() {
+    navigate = useNavigate();
+    return <output data-testid="key">{useLocation().key}</output>;
+  }
+  renderWithRouter(
+    <AuthContext.Provider value={{ status: 'member', user: { id: 'u', loginId: 'Leaf' }, signUp: none, logIn: none, logOut: none }}>
+      <AccountMenu />
+      <Probe />
+    </AuthContext.Provider>,
+    '/reviews?mine=1',
+  );
+  const user = userEvent.setup();
+  await user.click(screen.getByRole('button', { name: '내 계정' }));
+  const before = screen.getByTestId('key').textContent;
+  act(() => { void navigate('/reviews?mine=1', { replace: true, state: null }); });
+  expect(screen.getByTestId('key')).not.toHaveTextContent(before!);
+  expect(screen.getByRole('button', { name: '내 계정' })).toHaveAttribute('aria-expanded', 'true');
+  await user.click(screen.getByRole('link', { name: '내 리뷰' }));
+  expect(screen.getByRole('button', { name: '내 계정' })).toHaveAttribute('aria-expanded', 'false');
 });

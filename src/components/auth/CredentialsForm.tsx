@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import NotConfiguredNotice from '@/components/common/NotConfiguredNotice';
 import { Button } from '@/components/common/Button';
 import { useAuth } from '@/contexts';
@@ -49,6 +49,37 @@ export default function CredentialsForm({ signup }: { signup: boolean }) {
   const [failure, setFailure] = useState<CommerceError | null>(null);
   const mismatch = failure?.code === 'credentials-mismatch';
 
+  // 칸을 벗어나며 생긴 오류가 화면을 밀면, 누르던 버튼이 움직여 클릭이 사라진다.
+  // 마우스를 누르는 동안에는 검사를 미뤘다가 클릭이 끝난 뒤에 보여 준다.
+  const pressing = useRef(false);
+  const afterPress = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    const press = () => { pressing.current = true; };
+    const release = () => {
+      pressing.current = false;
+      const run = afterPress.current;
+      afterPress.current = null;
+      if (run) setTimeout(run);
+    };
+    document.addEventListener('pointerdown', press, true);
+    document.addEventListener('pointerup', release, true);
+    document.addEventListener('pointercancel', release, true);
+    return () => {
+      document.removeEventListener('pointerdown', press, true);
+      document.removeEventListener('pointerup', release, true);
+      document.removeEventListener('pointercancel', release, true);
+      afterPress.current = null;
+    };
+  }, []);
+
+  function leaveField(form: HTMLFormElement, target: EventTarget) {
+    if (!pressing.current) {
+      updateField(form, target, true);
+      return;
+    }
+    afterPress.current = () => { if (form.isConnected) updateField(form, target, true); };
+  }
+
   function updateField(form: HTMLFormElement, target: EventTarget, blur: boolean) {
     if (!(target instanceof HTMLInputElement)) return;
     const field = fields.find(name => name === target.name);
@@ -92,7 +123,7 @@ export default function CredentialsForm({ signup }: { signup: boolean }) {
 
   return (
     <form method="post" noValidate aria-label={signup ? '회원가입' : '로그인'}
-      onSubmit={submit} onBlur={e => updateField(e.currentTarget, e.target, true)}
+      onSubmit={submit} onBlur={e => leaveField(e.currentTarget, e.target)}
       onChange={e => updateField(e.currentTarget, e.target, false)} className="mt-8 space-y-6">
       <AuthField name="loginId" label="아이디" autoComplete="username" pending={pending}
         hint={signup ? '영문 또는 숫자 4~20자예요. 대소문자는 구분하지 않아요.' : undefined}

@@ -5,7 +5,7 @@
 대학교 웹 프로그래밍 과제로 제작한 카페 소개 SPA입니다. (브랜드명 '하루의 잎'은 임시 이름)
 
 ## 기술 스택
-React 19 · Vite · TypeScript · React Router DOM 7 · Tailwind CSS 4 · Three.js · React Three Fiber · Drei · Motion · Lucide React · Vitest · Playwright
+React 19 · Vite · TypeScript · React Router DOM 7 · Tailwind CSS 4 · Three.js · React Three Fiber · Drei · Motion · Lucide React · Vitest · Playwright · Supabase
 
 ## 실행
 ```bash
@@ -24,6 +24,13 @@ npm run dev          # http://localhost:5173
 | `npm run test` | Vitest 단위 테스트 |
 | `npm run test:e2e` | Playwright E2E (최초 1회 `npx playwright install chromium`) |
 | `npm run verify` | typecheck + lint + test + build |
+
+## 회원·구매·리뷰 (Supabase)
+회원가입·로그인, 장바구니, 모의 결제, 주문 내역, 구매 후 리뷰를 제공합니다. 실제 결제는 하지 않습니다. 설계는 [`docs/13-commerce-planning.md`](docs/13-commerce-planning.md), DB 준비는 [`supabase/README.md`](supabase/README.md)를 보세요.
+
+- 공개 값 두 개를 `.env.local`(로컬)과 Vercel 환경 변수에 넣습니다: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`VITE_` 이름도 됩니다). 비밀 키는 넣지 않습니다.
+- 값이 없으면 소개 페이지만 동작하고 회원·구매·리뷰 화면은 준비 안내를 보여 줍니다.
+- 단위·E2E 테스트는 `.env.local`이 있어도 실제 DB에 접속하지 않습니다. DB 없이 눌러 보려면 `VITE_COMMERCE_BACKEND=memory npm run dev`.
 
 ## Vercel 배포
 설정은 [`vercel.json`](vercel.json)에 들어 있어 Vercel 화면에서 따로 바꿀 값이 없습니다.

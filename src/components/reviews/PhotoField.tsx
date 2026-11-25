@@ -119,7 +119,7 @@ export default function PhotoField({ savedUrl, change, onChange, busy, onBusyCha
       <p role="status" className="text-sm text-ink-soft">
         {busy && <span className="mt-2 block">사진을 알맞은 크기로 줄이고 있어요.</span>}
       </p>
-      <FieldError id="review-photo-error">{error}</FieldError>
+      <FieldError id="review-photo-error" announce>{error}</FieldError>
     </div>
   );
 }

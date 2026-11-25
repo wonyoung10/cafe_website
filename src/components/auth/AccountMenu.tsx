@@ -8,7 +8,7 @@ import { safeNextPath } from '@/utils/nextPath';
 
 const actionClass = 'flex min-h-11 min-w-11 items-center rounded-leaf-sm px-3 text-left font-semibold text-forest hover:bg-cream';
 
-function MemberActions({ loginId, onLogOut }: { loginId: string; onLogOut: () => void }) {
+function MemberActions({ loginId, onLogOut, onNavigate }: { loginId: string; onLogOut: () => void; onNavigate?: () => void }) {
   const { logOut } = useAuth();
   const busy = useRef(false);
   const [pending, setPending] = useState(false);
@@ -35,8 +35,8 @@ function MemberActions({ loginId, onLogOut }: { loginId: string; onLogOut: () =>
       <p className="break-all border-b border-line px-3 py-2 text-sm text-ink-soft">
         <span className="sr-only">아이디 </span>{loginId}
       </p>
-      <Link className={actionClass} to={ROUTES.orders}>주문 내역</Link>
-      <Link className={actionClass} to={ROUTES.reviews + '?mine=1'}>내 리뷰</Link>
+      <Link className={actionClass} to={ROUTES.orders} onClick={onNavigate}>주문 내역</Link>
+      <Link className={actionClass} to={ROUTES.reviews + '?mine=1'} onClick={onNavigate}>내 리뷰</Link>
       <button type="button" className={actionClass + ' w-full'} disabled={pending} onClick={signOut}>로그아웃</button>
       {pending && <p role="status" className="px-3 text-sm text-ink-soft">로그아웃하고 있어요.</p>}
       {error && <p role="alert" className="px-3 text-sm text-walnut">{error}</p>}
@@ -82,7 +82,7 @@ function MemberDisclosure({ loginId, onLogOut }: { loginId: string; onLogOut: ()
         내 계정 <ChevronDown aria-hidden className="size-4" />
       </button>
       <div id={id} hidden={!open} className="absolute right-0 top-full mt-1 w-48 rounded-leaf border border-line bg-ivory p-2 shadow-lift">
-        <MemberActions loginId={loginId} onLogOut={onLogOut} />
+        <MemberActions loginId={loginId} onLogOut={onLogOut} onNavigate={() => setOpen(false)} />
       </div>
     </div>
   );
@@ -106,7 +106,7 @@ export default function AccountMenu({ variant = 'desktop' }: { variant?: 'deskto
     const props = { loginId: user.loginId, onLogOut: () => { returnFocus.current = true; } };
     return variant === 'panel'
       ? <div className="mt-3 border-t border-line pt-2"><MemberActions {...props} /></div>
-      : <MemberDisclosure key={location.key + user.id} {...props} />;
+      : <MemberDisclosure key={location.pathname + location.search + user.id} {...props} />;
   }
   const authPage = location.pathname === ROUTES.login || location.pathname === ROUTES.signup;
   const next = authPage ? new URLSearchParams(location.search).get('next') : null;

@@ -122,7 +122,6 @@ test('계정 메뉴는 Enter로 열리고 Esc로 닫히며 초점이 열었던 �
 test.describe('키보드 초점 유지', () => {
   // BUG-02: 담기 버튼이 처리 중 disabled 가 되어 초점이 body 로 떨어진다. 키보드 사용자는 다음 Tab 이 문서 맨 위에서 다시 시작된다.
   test('BUG-02 담기를 Enter로 누른 뒤에도 초점이 담기 버튼에 남는다', async ({ page }) => {
-    test.fail(true, 'BUG-02: 담기 버튼이 pending 동안 disabled 가 되어 초점을 잃는다 (src/components/cart/AddToCart.tsx)');
     await page.goto('/menu', { waitUntil: 'domcontentloaded' });
     const card = menuCard(page, '쿠키');
     const add = card.getByRole('button', { name: '담기', exact: true });
@@ -134,7 +133,6 @@ test.describe('키보드 초점 유지', () => {
 
   // BUG-03: 장바구니의 수량 버튼도 처리 중 disabled 가 되어 같은 문제가 생긴다.
   test('BUG-03 수량 늘리기를 키보드로 누른 뒤에도 초점이 그 버튼에 남는다', async ({ page }) => {
-    test.fail(true, 'BUG-03: 수량 버튼이 busy 동안 disabled 가 되어 초점을 잃는다 (src/pages/CartPage.tsx)');
     await page.goto('/menu', { waitUntil: 'domcontentloaded' });
     const cookie = page.getByRole('article').filter({ has: page.getByRole('heading', { name: '쿠키', exact: true }) });
     await cookie.getByRole('button', { name: '담기', exact: true }).click();

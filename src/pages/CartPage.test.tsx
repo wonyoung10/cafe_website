@@ -58,12 +58,19 @@ it('SH-02 changes quantity within bounds and confirms removal with keyboard focu
   renderApp('/cart', { api });
   const more = await screen.findByRole('button', { name: '아메리카노 HOT 수량 늘리기' });
   await userEvent.click(more);
-  expect(more).toBeDisabled();
+  // 한도에 닿아도 초점은 남고, 다시 눌러도 바뀌지 않는다
+  expect(more).toHaveAttribute('aria-disabled', 'true');
+  expect(more).toHaveFocus();
+  await userEvent.click(more);
   expect(screen.getByText('99,500원')).toBeInTheDocument();
+  expect((await api.cart.list()).find(({ menuId }) => menuId === 'americano')?.quantity).toBe(20);
   await userEvent.click(screen.getByRole('button', { name: '아메리카노 HOT 수량 줄이기' }));
-  expect(more).toBeEnabled();
+  expect(more).toHaveAttribute('aria-disabled', 'false');
   expect(screen.getByText('94,700원')).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: '쿠키 수량 줄이기' })).toBeDisabled();
+  const least = screen.getByRole('button', { name: '쿠키 수량 줄이기' });
+  expect(least).toHaveAttribute('aria-disabled', 'true');
+  await userEvent.click(least);
+  expect((await api.cart.list()).find(({ menuId }) => menuId === 'cookie')?.quantity).toBe(1);
 
   const remove = screen.getByRole('button', { name: '아메리카노 HOT 삭제' });
   await userEvent.click(remove);

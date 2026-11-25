@@ -40,5 +40,7 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}', 'supabase/**/*.test.ts'],
     css: false,
+    // 이 PC에 .env.local이 있어도 단위 테스트가 실제 Supabase에 접속하지 않게 한다
+    env: { VITE_SUPABASE_URL: '', VITE_SUPABASE_PUBLISHABLE_KEY: '', NEXT_PUBLIC_SUPABASE_URL: '', NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: '', NEXT_PUBLIC_SUPABASE_ANON_KEY: '' },
   },
 });
